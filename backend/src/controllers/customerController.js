@@ -5,23 +5,24 @@ const db = require('../../config/db');
 // @access  Private
 exports.getCustomers = async (req, res) => {
   try {
-    const result = await db.query(`
-      SELECT 
-        id,
-        name,
-        email,
-        phone,
-        address,
-        city,
-        country,
-        id_number,
-        notes,
-        active_rentals,
-        balance,
-        status
-      FROM customers
-      ORDER BY id ASC
-    `);
+   const result = await db.query(`
+  SELECT 
+    id,
+    name,
+    email,
+    phone,
+    address,
+    city,
+    country,
+    id_number,
+    notes,
+    active_rentals,
+    balance,
+    status
+  FROM customers
+  WHERE is_deleted IS NOT TRUE
+  ORDER BY id ASC
+`);
 
     const customers = result.rows.map((customer) => ({
       id: customer.id,
@@ -57,26 +58,27 @@ exports.getCustomers = async (req, res) => {
 // @access  Private
 exports.getCustomerById = async (req, res) => {
   try {
-    const result = await db.query(
-      `
-      SELECT 
-        id,
-        name,
-        email,
-        phone,
-        address,
-        city,
-        country,
-        id_number,
-        notes,
-        active_rentals,
-        balance,
-        status
-      FROM customers
-      WHERE id = $1
-      `,
-      [req.params.id]
-    );
+const result = await db.query(
+  `
+  SELECT 
+    id,
+    name,
+    email,
+    phone,
+    address,
+    city,
+    country,
+    id_number,
+    notes,
+    active_rentals,
+    balance,
+    status
+  FROM customers
+  WHERE id = $1
+  AND is_deleted IS NOT TRUE
+  `,
+  [req.params.id]
+);
 
     if (result.rows.length === 0) {
       return res.status(404).json({
@@ -309,28 +311,50 @@ exports.updateCustomer = async (req, res) => {
 // @desc    Delete customer
 // @route   DELETE /api/customers/:id
 // @access  Private
+// @desc    Soft delete customer
+// @route   DELETE /api/customers/:id
+// @access  Private
 exports.deleteCustomer = async (req, res) => {
   try {
-    const check = await db.query(
-      'SELECT id FROM customers WHERE id = $1',
-      [req.params.id]
+    const customerId = parseInt(req.params.id, 10);
+
+    if (isNaN(customerId) || customerId <= 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid customer ID'
+      });
+    }
+
+    const customerCheck = await db.query(
+      'SELECT id, name, is_deleted FROM customers WHERE id = $1',
+      [customerId]
     );
 
-    if (check.rows.length === 0) {
+    if (customerCheck.rows.length === 0) {
       return res.status(404).json({
         success: false,
         message: 'Customer not found'
       });
     }
 
-    await db.query('DELETE FROM customers WHERE id = $1', [req.params.id]);
+    if (customerCheck.rows[0].is_deleted) {
+      return res.status(400).json({
+        success: false,
+        message: 'Customer already deleted'
+      });
+    }
+
+  await db.query(
+  `UPDATE customers SET is_deleted = true, deleted_at = CURRENT_TIMESTAMP WHERE id = $1`,
+  [customerId]
+);
 
     res.status(200).json({
       success: true,
       message: 'Customer deleted successfully'
     });
   } catch (error) {
-    console.error('Delete Customer Error:', error);
+    console.error('Soft Delete Customer Error:', error);
     res.status(500).json({
       success: false,
       message: error.message

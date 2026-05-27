@@ -4,10 +4,10 @@ const { protect } = require('../middleware/authMiddleware');
 
 const router = express.Router();
 
-// Public route (No middleware)
+// Public route
 router.post('/login', login);
 
-// Protected routes (Requires valid JWT)
+// Protected routes
 router.get('/me', protect, getMe);
 router.post('/logout', protect, logout);
 

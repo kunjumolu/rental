@@ -7,6 +7,19 @@ const db = require('./config/db');
 const authRoutes = require('./src/routes/authRoutes');
 const customerRoutes = require('./src/routes/customerRoutes');
 const dashboardRoutes = require('./src/routes/dashboardRoutes'); // ✅ IMPORT DASHBOARD ROUTES
+const rentalRoutes = require('./src/routes/rentalRoutes');
+const inventoryRoutes = require('./src/routes/inventoryRoutes');
+const invoiceRoutes = require('./src/routes/invoiceRoutes');
+const billRoutes = require('./src/routes/billRoutes');
+const vendorRoutes = require('./src/routes/vendorRoutes');
+const taxRateRoutes = require('./src/routes/taxRateRoutes');
+const chartOfAccountsRoutes = require('./src/routes/chartOfAccountsRoutes');
+const ledgerRoutes = require('./src/routes/ledgerRoutes');
+const accountingRoutes = require('./src/routes/accountingRoutes');
+const reportsRoutes = require('./src/routes/reportsRoutes');
+const settingsRoutes = require('./src/routes/settingsRoutes');
+const expenseRoutes = require('./src/routes/expenseRoutes');
+const notificationRoutes = require('./src/routes/notificationRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -30,6 +43,19 @@ app.get('/api/health', async (req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/dashboard', dashboardRoutes); // ✅ MOUNT DASHBOARD ROUTES
 app.use('/api/customers', customerRoutes);
+app.use('/api/rentals', rentalRoutes);
+app.use('/api/inventory', inventoryRoutes);
+app.use('/api/invoices', invoiceRoutes);
+app.use('/api/bills', billRoutes);
+app.use('/api/vendors', vendorRoutes);
+app.use('/api/tax-rates', taxRateRoutes);
+app.use('/api/chart-of-accounts', chartOfAccountsRoutes);
+app.use('/api/ledger', ledgerRoutes);
+app.use('/api/accounting', accountingRoutes);
+app.use('/api/reports', reportsRoutes);
+app.use('/api/settings',settingsRoutes);
+app.use('/api/expenses', expenseRoutes);
+app.use('/api/notifications', notificationRoutes);
 
 // Default & Error Handlers
 app.get('/', (req, res) => res.json({ message: 'Welcome to ERMS API' }));
