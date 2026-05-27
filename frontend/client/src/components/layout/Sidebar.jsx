@@ -1,67 +1,181 @@
-import React from 'react';
-// 1. Import NavLink from react-router-dom
-import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, Users, Box, Key, Calculator, Settings, Plus, HelpCircle, LogOut, X } from 'lucide-react';
+import React, { useState } from 'react';
+import { NavLink, useNavigate } from 'react-router-dom';
+import {
+  LayoutDashboard, Users, Box, Calculator, Settings,
+  Plus, HelpCircle, LogOut, X, ShoppingCartIcon, Receipt,
+  FileIcon, ShoppingBag, ChevronDown, ChevronRight, Store, Wallet
+} from 'lucide-react';
+import usePermission from '../../hooks/usePermission';
 
 const Sidebar = ({ isOpen, setIsOpen }) => {
-  
-  // 2. Update NavItem to use NavLink and the "to" prop
+  const navigate = useNavigate();
+  const { can } = usePermission();
+  const [purchasesOpen, setPurchasesOpen] = useState(false);
+
   const NavItem = ({ icon: Icon, label, to }) => (
     <NavLink
       to={to}
-      // NavLink gives us an "isActive" boolean automatically
-      className={({ isActive }) => `flex items-center gap-3 px-4 py-2.5 rounded-lg cursor-pointer transition-all ${
-        isActive ? 'bg-[#EBF2FF] text-[#0047AB]' : 'text-slate-500 hover:bg-slate-50'
-      }`}
+      className={({ isActive }) =>
+        `flex items-center gap-3 px-4 py-2.5 rounded-lg cursor-pointer transition-all ${
+          isActive
+            ? 'bg-[#f3e8ff] text-[#6B21A8]'
+            : 'text-slate-500 hover:bg-slate-50'
+        }`
+      }
     >
       <Icon size={20} />
       <span className="text-sm font-semibold">{label}</span>
     </NavLink>
   );
 
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    navigate("/login");
+  };
+
+  const showPurchases =
+    can("VIEW_VENDORS") || can("VIEW_EXPENSES") || can("VIEW_BILLS");
+
   return (
     <>
-      {/* Mobile Backdrop */}
-      {isOpen && <div className="fixed inset-0 bg-black/50 z-40 lg:hidden" onClick={() => setIsOpen(false)} />}
+      {isOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          onClick={() => setIsOpen(false)}
+        />
+      )}
 
-      <aside className={`fixed lg:static inset-y-0 left-0 z-50 w-64 bg-white border-r border-slate-200 transform transition-transform duration-300 lg:translate-x-0 ${
-        isOpen ? 'translate-x-0' : '-translate-x-full'
-      }`}>
+      <aside
+        className={`fixed lg:static inset-y-0 left-0 z-50 w-64 bg-white border-r border-slate-200 transform transition-transform duration-300 lg:translate-x-0 ${
+          isOpen ? 'translate-x-0' : '-translate-x-full'
+        }`}
+      >
         <div className="p-6 h-full flex flex-col">
-          <div className="flex items-center justify-between mb-8">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-blue-600 rounded flex items-center justify-center text-white"><Box size={20} /></div>
-              <div>
-                <h1 className="text-sm font-bold leading-none">Asset Intelligence</h1>
-                <p className="text-[10px] text-slate-400 font-medium">Enterprise Management</p>
-              </div>
-            </div>
-            <button className="lg:hidden" onClick={() => setIsOpen(false)}><X size={20}/></button>
+          <div className="flex items-center justify-between mb-4">
+            <img
+              src="/white legacy.jpg"
+              alt="White Legacy"
+              style={{ height: "auto", width: "100%", maxWidth: "180px", objectFit: "contain", border: "none", boxShadow: "none", background: "transparent" }}
+            />
+            <button className="lg:hidden text-slate-500 ml-2" onClick={() => setIsOpen(false)}>
+              <X size={20} />
+            </button>
           </div>
 
-          <button className="w-full bg-[#0047AB] text-white py-2.5 rounded-lg flex items-center justify-center gap-2 text-sm font-bold mb-8 shadow-sm">
-            <Plus size={18} /> New Rental
-          </button>
+          {can("ADD_RENTAL") && (
+            <button
+              onClick={() => navigate("/rentals")}
+              className="w-full py-2.5 rounded-lg flex items-center justify-center gap-2 text-sm font-bold mb-6 shadow-sm transition text-white"
+              style={{ backgroundColor: "#27276e" }}
+              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#3e4484")}
+              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#27276e")}
+            >
+              <Plus size={18} />
+              New Rental
+            </button>
+          )}
 
-          <nav className="space-y-1 flex-1">
-            {/* 3. Provide the "to" paths for your routes */}
-            <NavItem icon={LayoutDashboard} label="Dashboard" to="/" />
-            <NavItem icon={Users} label="Customers" to="/customers" />
-            <NavItem icon={Box} label="Inventory" to="/inventory" />
-            <NavItem icon={Key} label="Rentals" to="/rentals" />
-            <NavItem icon={Calculator} label="Accounting" to="/accounting" />
+          <nav className="space-y-1 flex-1 overflow-y-auto">
+            {can("VIEW_DASHBOARD") && (
+              <NavItem icon={LayoutDashboard} label="Dashboard" to="/dashboard" />
+            )}
+            {can("VIEW_CUSTOMERS") && (
+              <NavItem icon={Users} label="Customers" to="/customers" />
+            )}
+            {can("VIEW_INVENTORY") && (
+              <NavItem icon={Box} label="Inventory" to="/inventory" />
+            )}
+            {can("VIEW_RENTALS") && (
+              <NavItem icon={ShoppingCartIcon} label="Rentals" to="/rentals" />
+            )}
+            {can("VIEW_ACCOUNTING") && (
+              <NavItem icon={Calculator} label="Accounting" to="/accounting" />
+            )}
+            {can("VIEW_INVOICES") && (
+              <NavItem icon={Receipt} label="Invoices & Billing" to="/invoices & billing" />
+            )}
+
+            {showPurchases && (
+              <div>
+                <button
+                  onClick={() => setPurchasesOpen(!purchasesOpen)}
+                  className="w-full flex items-center justify-between px-4 py-2.5 rounded-lg text-slate-500 hover:bg-slate-50 transition-all"
+                >
+                  <div className="flex items-center gap-3">
+                    <ShoppingBag size={20} />
+                    <span className="text-sm font-semibold">Purchases</span>
+                  </div>
+                  {purchasesOpen ? (
+                    <ChevronDown size={16} className="text-slate-400" />
+                  ) : (
+                    <ChevronRight size={16} className="text-slate-400" />
+                  )}
+                </button>
+
+                {purchasesOpen && (
+                  <div className="ml-3 mt-1 space-y-1 border-l-2 border-[#f3e8ff] pl-3">
+                    {can("VIEW_VENDORS") && (
+                      <NavLink
+                        to="/vendors"
+                        className={({ isActive }) =>
+                          `flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer transition-all text-sm font-semibold ${
+                            isActive ? 'bg-[#f3e8ff] text-[#6B21A8]' : 'text-slate-500 hover:bg-slate-50'
+                          }`
+                        }
+                      >
+                        <Store size={16} />
+                        Vendors
+                      </NavLink>
+                    )}
+
+                    {can("VIEW_EXPENSES") && (
+                      <NavLink
+                        to="/expenses"
+                        className={({ isActive }) =>
+                          `flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer transition-all text-sm font-semibold ${
+                            isActive ? 'bg-[#f3e8ff] text-[#6B21A8]' : 'text-slate-500 hover:bg-slate-50'
+                          }`
+                        }
+                      >
+                        <Wallet size={16} />
+                        Expenses
+                      </NavLink>
+                    )}
+
+                    {can("VIEW_BILLS") && (
+                      <NavLink
+                        to="/bills"
+                        className={({ isActive }) =>
+                          `flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer transition-all text-sm font-semibold ${
+                            isActive ? 'bg-[#f3e8ff] text-[#6B21A8]' : 'text-slate-500 hover:bg-slate-50'
+                          }`
+                        }
+                      >
+                        <Receipt size={16} />
+                        Bills
+                      </NavLink>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {can("VIEW_REPORTS") && (
+              <NavItem icon={FileIcon} label="Reports" to="/reports" />
+            )}
             <NavItem icon={Settings} label="Settings" to="/settings" />
-            
-            {/* Added the Test link so you can click it */}
-            <NavItem icon={Box} label="Connection Test" to="/test" />
           </nav>
 
           <div className="border-t border-slate-100 pt-4 space-y-1">
             <NavItem icon={HelpCircle} label="Help Center" to="/help" />
-            <div className="flex items-center gap-3 px-4 py-2.5 rounded-lg cursor-pointer text-slate-500 hover:bg-slate-50">
+            <button
+              onClick={handleLogout}
+              className="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg cursor-pointer text-slate-500 hover:bg-slate-50 transition"
+            >
               <LogOut size={20} />
               <span className="text-sm font-semibold">Logout</span>
-            </div>
+            </button>
           </div>
         </div>
       </aside>

@@ -76,7 +76,7 @@ export default function LoginForm() {
               type="email" 
               value={formData.email}
               onChange={handleChange}
-              placeholder="admin@erms.com"
+              placeholder="Email"
               required
               disabled={loading} // Disable while loading
               className="h-[52px] w-full rounded-[10px] border border-[#e5e7eb] bg-white pl-11 pr-4 text-[15px] text-[#111827] outline-none transition-all focus:border-[#1e40af] focus:ring-4 focus:ring-blue-100 disabled:bg-slate-50 disabled:cursor-not-allowed"
@@ -103,7 +103,7 @@ export default function LoginForm() {
               type={showPassword ? "text" : "password"} 
               value={formData.password}
               onChange={handleChange}
-              placeholder="password123"
+              placeholder="password"
               required
               disabled={loading}
               className={`h-[52px] w-full rounded-[10px] border bg-white pl-11 pr-12 text-[15px] text-[#111827] outline-none transition-all focus:ring-4 ${

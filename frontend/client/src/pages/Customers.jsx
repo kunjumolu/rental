@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import CustomersHeader from "../components/customers/CustomersHeader";
 import CustomersFilters from "../components/customers/CustomersFilters";
 import CustomersTable from "../components/customers/CustomersTable";
@@ -11,6 +11,10 @@ export default function Customers() {
   const [customers, setCustomers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [sortOption, setSortOption] = useState("recent");
 
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [isViewOpen, setIsViewOpen] = useState(false);
@@ -110,12 +114,54 @@ export default function Customers() {
     setSelectedCustomer(null);
   };
 
+  const filteredAndSortedCustomers = useMemo(() => {
+    let filtered = [...customers];
+
+    // Search
+    filtered = filtered.filter((customer) => {
+      const name = (customer.name || "").toLowerCase();
+      const phone = (customer.phone || "").toLowerCase();
+      const search = searchTerm.trim().toLowerCase();
+
+      if (!search) return true;
+
+      return name.includes(search) || phone.includes(search);
+    });
+
+    // Status filter
+    filtered = filtered.filter((customer) => {
+      const status = (customer.status || "").toLowerCase();
+
+      if (statusFilter === "all") return true;
+
+      return status === statusFilter;
+    });
+
+    // Sorting
+    if (sortOption === "recent") {
+      filtered.sort((a, b) => b.id - a.id);
+    } else if (sortOption === "name_asc") {
+      filtered.sort((a, b) => a.name.localeCompare(b.name));
+    } else if (sortOption === "name_desc") {
+      filtered.sort((a, b) => b.name.localeCompare(a.name));
+    }
+
+    return filtered;
+  }, [customers, searchTerm, statusFilter, sortOption]);
+
   return (
     <div className="px-6 py-6">
       <CustomersHeader onAddClick={() => setIsAddOpen(true)} />
 
       <div className="mt-5 rounded-[10px] border border-[#d9deea] bg-white shadow-sm">
-        <CustomersFilters />
+        <CustomersFilters
+          searchTerm={searchTerm}
+          setSearchTerm={setSearchTerm}
+          statusFilter={statusFilter}
+          setStatusFilter={setStatusFilter}
+          sortOption={sortOption}
+          setSortOption={setSortOption}
+        />
 
         {loading ? (
           <div className="p-6 text-sm text-gray-500">Loading customers...</div>
@@ -133,7 +179,7 @@ export default function Customers() {
           </div>
         ) : (
           <CustomersTable
-            customers={customers}
+            customers={filteredAndSortedCustomers}
             onView={openViewModal}
             onEdit={openEditModal}
             onDelete={openDeleteModal}
