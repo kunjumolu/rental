@@ -1,36 +1,64 @@
 const db = require('../../config/db');
 
+// Helper: Generate next customer_id like WL001, WL002, etc.
+const generateCustomerId = async () => {
+  try {
+    const result = await db.query(`
+      SELECT customer_id FROM customers 
+      WHERE customer_id IS NOT NULL AND customer_id != '' 
+      ORDER BY customer_id DESC 
+      LIMIT 1
+    `);
+
+    if (result.rows.length === 0) {
+      return 'WL001';
+    }
+
+    const lastId = result.rows[0].customer_id; // e.g., "WL025"
+    const numPart = parseInt(lastId.replace('WL', ''), 10);
+    const nextNum = numPart + 1;
+    return `WL${String(nextNum).padStart(3, '0')}`;
+  } catch (err) {
+    console.error('Generate Customer ID Error:', err);
+    return `WL${Date.now().toString().slice(-3)}`;
+  }
+};
+
 // @desc    Get all customers
 // @route   GET /api/customers
 // @access  Private
 exports.getCustomers = async (req, res) => {
   try {
-   const result = await db.query(`
-  SELECT 
-    id,
-    name,
-    email,
-    phone,
-    address,
-    city,
-    country,
-    id_number,
-    notes,
-    active_rentals,
-    balance,
-    status
-  FROM customers
-  WHERE is_deleted IS NOT TRUE
-  ORDER BY id ASC
-`);
+    const result = await db.query(`
+      SELECT 
+        id,
+        customer_id,
+        name,
+        email,
+        phone,
+        address,
+        city,
+        state,
+        country,
+        id_number,
+        notes,
+        active_rentals,
+        balance,
+        status
+      FROM customers
+      WHERE is_deleted IS NOT TRUE
+      ORDER BY id ASC
+    `);
 
     const customers = result.rows.map((customer) => ({
       id: customer.id,
+      customerId: customer.customer_id || '',
       name: customer.name,
       email: customer.email,
       phone: customer.phone,
       address: customer.address,
       city: customer.city,
+      state: customer.state || '',
       country: customer.country,
       idNumber: customer.id_number,
       notes: customer.notes,
@@ -58,27 +86,29 @@ exports.getCustomers = async (req, res) => {
 // @access  Private
 exports.getCustomerById = async (req, res) => {
   try {
-const result = await db.query(
-  `
-  SELECT 
-    id,
-    name,
-    email,
-    phone,
-    address,
-    city,
-    country,
-    id_number,
-    notes,
-    active_rentals,
-    balance,
-    status
-  FROM customers
-  WHERE id = $1
-  AND is_deleted IS NOT TRUE
-  `,
-  [req.params.id]
-);
+    const result = await db.query(
+      `
+      SELECT 
+        id,
+        customer_id,
+        name,
+        email,
+        phone,
+        address,
+        city,
+        state,
+        country,
+        id_number,
+        notes,
+        active_rentals,
+        balance,
+        status
+      FROM customers
+      WHERE id = $1
+      AND is_deleted IS NOT TRUE
+      `,
+      [req.params.id]
+    );
 
     if (result.rows.length === 0) {
       return res.status(404).json({
@@ -93,11 +123,13 @@ const result = await db.query(
       success: true,
       data: {
         id: customer.id,
+        customerId: customer.customer_id || '',
         name: customer.name,
         email: customer.email,
         phone: customer.phone,
         address: customer.address,
         city: customer.city,
+        state: customer.state || '',
         country: customer.country,
         idNumber: customer.id_number,
         notes: customer.notes,
@@ -126,8 +158,10 @@ exports.createCustomer = async (req, res) => {
       phone,
       address,
       city,
+      state,
       country,
       idNumber,
+      customerId,
       status,
       notes
     } = req.body;
@@ -139,14 +173,19 @@ exports.createCustomer = async (req, res) => {
       });
     }
 
+    // Auto-generate customer_id if not provided
+    const finalCustomerId = customerId || await generateCustomerId();
+
     const result = await db.query(
       `
       INSERT INTO customers (
+        customer_id,
         name,
         email,
         phone,
         address,
         city,
+        state,
         country,
         id_number,
         status,
@@ -154,14 +193,16 @@ exports.createCustomer = async (req, res) => {
         balance,
         active_rentals
       )
-      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)
+      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)
       RETURNING 
         id,
+        customer_id,
         name,
         email,
         phone,
         address,
         city,
+        state,
         country,
         id_number,
         status,
@@ -170,11 +211,13 @@ exports.createCustomer = async (req, res) => {
         active_rentals
       `,
       [
+        finalCustomerId,
         name,
         email,
         phone,
         address || '',
         city || '',
+        state || '',
         country || '',
         idNumber || '',
         status || 'active',
@@ -191,11 +234,13 @@ exports.createCustomer = async (req, res) => {
       message: 'Customer added successfully',
       data: {
         id: customer.id,
+        customerId: customer.customer_id || '',
         name: customer.name,
         email: customer.email,
         phone: customer.phone,
         address: customer.address,
         city: customer.city,
+        state: customer.state || '',
         country: customer.country,
         idNumber: customer.id_number,
         status: customer.status,
@@ -224,6 +269,7 @@ exports.updateCustomer = async (req, res) => {
       phone,
       address,
       city,
+      state,
       country,
       idNumber,
       status,
@@ -239,18 +285,22 @@ exports.updateCustomer = async (req, res) => {
         phone = $3,
         address = $4,
         city = $5,
-        country = $6,
-        id_number = $7,
-        status = $8,
-        notes = $9
-      WHERE id = $10
+        state = $6,
+        country = $7,
+        id_number = $8,
+        status = $9,
+        notes = $10
+      WHERE id = $11
+      AND is_deleted IS NOT TRUE
       RETURNING 
         id,
+        customer_id,
         name,
         email,
         phone,
         address,
         city,
+        state,
         country,
         id_number,
         notes,
@@ -262,12 +312,13 @@ exports.updateCustomer = async (req, res) => {
         name,
         email,
         phone,
-        address,
-        city,
-        country,
-        idNumber,
+        address || '',
+        city || '',
+        state || '',
+        country || '',
+        idNumber || '',
         status,
-        notes,
+        notes || '',
         req.params.id
       ]
     );
@@ -286,11 +337,13 @@ exports.updateCustomer = async (req, res) => {
       message: 'Customer updated successfully',
       data: {
         id: customer.id,
+        customerId: customer.customer_id || '',
         name: customer.name,
         email: customer.email,
         phone: customer.phone,
         address: customer.address,
         city: customer.city,
+        state: customer.state || '',
         country: customer.country,
         idNumber: customer.id_number,
         notes: customer.notes,
@@ -308,9 +361,6 @@ exports.updateCustomer = async (req, res) => {
   }
 };
 
-// @desc    Delete customer
-// @route   DELETE /api/customers/:id
-// @access  Private
 // @desc    Soft delete customer
 // @route   DELETE /api/customers/:id
 // @access  Private
@@ -344,10 +394,10 @@ exports.deleteCustomer = async (req, res) => {
       });
     }
 
-  await db.query(
-  `UPDATE customers SET is_deleted = true, deleted_at = CURRENT_TIMESTAMP WHERE id = $1`,
-  [customerId]
-);
+    await db.query(
+      `UPDATE customers SET is_deleted = true, deleted_at = CURRENT_TIMESTAMP WHERE id = $1`,
+      [customerId]
+    );
 
     res.status(200).json({
       success: true,

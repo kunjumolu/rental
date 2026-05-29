@@ -66,5 +66,5 @@ app.use((err, req, res, next) => {
 app.use('*', (req, res) => res.status(404).json({ error: 'Route not found' }));
 
 app.listen(PORT, () => {
-  console.log(`\n🚀 ERMS Server running on http://localhost:${PORT}`);
+  console.log(`\nERMS Server running on http://localhost:${PORT}`);
 });
