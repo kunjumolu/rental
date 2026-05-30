@@ -1,8 +1,21 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
+const nodemailer = require('nodemailer');
 const db = require('../../config/db');
-const { sendPasswordResetEmail } = require('../utils/emailService');
+
+// ============================================================
+// Email Transporter (Gmail)
+// Set EMAIL_USER and EMAIL_PASS in your .env file
+// Use Gmail App Password (not your Gmail login password)
+// ============================================================
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+  },
+});
 
 // ============================================================
 // @desc    Login user / Get token
@@ -29,24 +42,21 @@ exports.login = async (req, res) => {
       });
     }
 
-    // 🔒 Support BOTH bcrypt-hashed AND plain-text passwords (for backward compat)
-    // bcrypt hashes always start with "$2a$", "$2b$", or "$2y$"
+    // Support BOTH bcrypt-hashed AND plain-text passwords (for backward compat)
     let isMatch = false;
     if (user.password_hash && user.password_hash.startsWith('$2')) {
-      // Properly hashed — use bcrypt compare
       isMatch = await bcrypt.compare(password, user.password_hash);
     } else {
-      // Legacy plain-text password (your existing data)
       isMatch = user.password_hash === password;
 
-      // 🔄 Auto-upgrade: hash it for next time so old users get secure storage
+      // Auto-upgrade plain-text passwords to bcrypt
       if (isMatch) {
         const newHash = await bcrypt.hash(password, 10);
         await db.query('UPDATE users SET password_hash = $1 WHERE id = $2', [
           newHash,
           user.id,
         ]);
-        console.log(`🔐 Auto-upgraded plain-text password to bcrypt for user ${user.email}`);
+        console.log(`Auto-upgraded plain-text password to bcrypt for ${user.email}`);
       }
     }
 
@@ -65,11 +75,7 @@ exports.login = async (req, res) => {
     }
 
     const token = jwt.sign(
-      {
-        id: user.id,
-        email: user.email,
-        role: user.role_name,
-      },
+      { id: user.id, email: user.email, role: user.role_name },
       process.env.JWT_SECRET,
       { expiresIn: '24h' }
     );
@@ -88,10 +94,7 @@ exports.login = async (req, res) => {
     });
   } catch (error) {
     console.error('Login Error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Server Error during login',
-    });
+    res.status(500).json({ success: false, message: 'Server Error during login' });
   }
 };
 
@@ -103,31 +106,19 @@ exports.getMe = async (req, res) => {
   try {
     const result = await db.query(
       `SELECT u.id, u.email, u.full_name, u.is_active, u.created_at, r.name as role
-       FROM users u
-       JOIN roles r ON u.role_id = r.id
+       FROM users u JOIN roles r ON u.role_id = r.id
        WHERE u.id = $1`,
       [req.user.id]
     );
 
-    const user = result.rows[0];
-
-    if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: 'User not found',
-      });
+    if (result.rows.length === 0) {
+      return res.status(404).json({ success: false, message: 'User not found' });
     }
 
-    res.status(200).json({
-      success: true,
-      data: user,
-    });
+    res.status(200).json({ success: true, data: result.rows[0] });
   } catch (error) {
     console.error('GetMe Error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Server Error',
-    });
+    res.status(500).json({ success: false, message: 'Server Error' });
   }
 };
 
@@ -136,168 +127,212 @@ exports.getMe = async (req, res) => {
 // @route   POST /api/auth/logout
 // ============================================================
 exports.logout = async (req, res) => {
-  res.status(200).json({
-    success: true,
-    message: 'User logged out successfully',
-  });
+  res.status(200).json({ success: true, message: 'User logged out successfully' });
 };
 
 // ============================================================
-// @desc    Forgot password — send reset link to email
+// OTP-BASED FORGOT PASSWORD (via Email)
+//
+// Flow:
+//   1. POST /forgot-password  { email }
+//      → Generates 6-digit OTP, stores hash in DB, sends OTP to email
+//
+//   2. POST /verify-otp       { email, otp }
+//      → Verifies OTP, returns a short-lived reset token
+//
+//   3. POST /reset-password   { resetToken, newPassword }
+//      → Resets password using the token from step 2
+// ============================================================
+
+// In-memory store for active reset tokens (short-lived, 10 min)
+// In production, use Redis.
+const resetTokenStore = new Map();
+
+// Helper: generate 6-digit OTP
+const generateOTP = () => {
+  return crypto.randomInt(100000, 999999).toString();
+};
+
+// ============================================================
+// @desc    Step 1: Request OTP — sends OTP to user's email
 // @route   POST /api/auth/forgot-password
 // ============================================================
 exports.forgotPassword = async (req, res) => {
   const { email } = req.body;
 
   if (!email) {
-    return res.status(400).json({
-      success: false,
-      message: 'Email is required',
-    });
+    return res.status(400).json({ success: false, message: 'Email is required' });
   }
 
   try {
-    // 1. Find user by email
+    // Find user
     const userResult = await db.query(
       'SELECT id, email, full_name, is_active FROM users WHERE email = $1',
       [email]
     );
 
-    // 🔒 SECURITY: ALWAYS respond with success, whether email exists or not.
-    //    Otherwise attackers can "discover" which emails are registered.
-    const successResponse = {
-      success: true,
-      message: 'If an account with that email exists, a password reset link has been sent.',
-    };
-
     if (userResult.rows.length === 0) {
-      return res.status(200).json(successResponse);
+      return res.status(404).json({
+        success: false,
+        message: 'No account found with this email',
+      });
     }
 
     const user = userResult.rows[0];
 
     if (!user.is_active) {
-      // Don't tell the attacker the account is deactivated
-      return res.status(200).json(successResponse);
+      return res.status(403).json({
+        success: false,
+        message: 'Account is deactivated. Contact admin.',
+      });
     }
 
-    // 2. Generate a cryptographically-secure random token (64 hex chars)
-    const rawToken = crypto.randomBytes(32).toString('hex');
+    // Generate 6-digit OTP
+    const otp = generateOTP();
+    const otpHash = crypto.createHash('sha256').update(otp).digest('hex');
+    const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
 
-    // Hash the token before storing — so even DB leak doesn't expose usable tokens
-    const tokenHash = crypto.createHash('sha256').update(rawToken).digest('hex');
-
-    const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1 hour from now
-
-    // 3. Invalidate any previous unused tokens for this user
+    // Invalidate previous unused tokens
     await db.query(
-      `UPDATE password_reset_tokens
-          SET used = true
+      `UPDATE password_reset_tokens SET used = true
         WHERE user_id = $1 AND used = false`,
       [user.id]
     );
 
-    // 4. Insert new token
+    // Store hashed OTP in DB
     await db.query(
       `INSERT INTO password_reset_tokens (user_id, token, expires_at)
        VALUES ($1, $2, $3)`,
-      [user.id, tokenHash, expiresAt]
+      [user.id, otpHash, expiresAt]
     );
 
-    // 5. Build reset URL (send the RAW token in the URL, not the hash)
-    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
-    const resetUrl = `${frontendUrl}/reset-password/${rawToken}`;
+    // Send OTP via Email
+    await transporter.sendMail({
+      from: `"Support" <${process.env.EMAIL_USER}>`,
+      to: user.email,
+      subject: 'Your Password Reset OTP',
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 480px; margin: auto; padding: 24px; border: 1px solid #e5e7eb; border-radius: 12px;">
+          <h2 style="color: #6B21A8; margin-bottom: 8px;">Password Reset OTP</h2>
+          <p style="color: #374151;">Hi <strong>${user.full_name}</strong>,</p>
+          <p style="color: #374151;">We received a request to reset your password. Use the OTP below to proceed:</p>
+          <div style="text-align: center; margin: 28px 0;">
+            <span style="font-size: 42px; font-weight: bold; letter-spacing: 12px; color: #6B21A8;">${otp}</span>
+          </div>
+          <p style="color: #6b7280; font-size: 14px;">This OTP is valid for <strong>10 minutes</strong>. Do not share it with anyone.</p>
+          <p style="color: #6b7280; font-size: 14px;">If you did not request a password reset, please ignore this email.</p>
+          <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 24px 0;" />
+          <p style="color: #9ca3af; font-size: 12px; text-align: center;">This is an automated email. Please do not reply.</p>
+        </div>
+      `,
+    });
 
-    // 6. Send email
-    try {
-      await sendPasswordResetEmail({
-        to: user.email,
-        fullName: user.full_name,
-        resetUrl,
-      });
-      console.log(`📧 Password reset email sent to ${user.email}`);
-    } catch (emailErr) {
-      console.error('❌ Email send failed:', emailErr.message);
-      // For DEV: also log the link so you can test without working email
-      console.log(`🔗 DEV reset link (email failed): ${resetUrl}`);
-    }
+    console.log(`Password reset OTP sent to ${user.email}`);
 
-    return res.status(200).json(successResponse);
+    res.status(200).json({
+      success: true,
+      message: 'OTP sent to your email. Please check your inbox.',
+      data: {
+        email: user.email,
+        expiresInMinutes: 10,
+      },
+    });
   } catch (error) {
     console.error('Forgot Password Error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Server Error',
-    });
+    res.status(500).json({ success: false, message: 'Server Error' });
   }
 };
 
 // ============================================================
-// @desc    Verify a reset token (so frontend can show form or "invalid" UI)
-// @route   GET /api/auth/verify-reset-token/:token
+// @desc    Step 2: Verify OTP and get reset token
+// @route   POST /api/auth/verify-otp
 // ============================================================
-exports.verifyResetToken = async (req, res) => {
-  const { token } = req.params;
+exports.verifyOtp = async (req, res) => {
+  const { email, otp } = req.body;
 
-  if (!token) {
-    return res.status(400).json({ success: false, message: 'Token is required' });
+  if (!email || !otp) {
+    return res.status(400).json({
+      success: false,
+      message: 'Email and OTP are required',
+    });
   }
 
   try {
-    const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
+    // Find user
+    const userResult = await db.query('SELECT id FROM users WHERE email = $1', [email]);
+    if (userResult.rows.length === 0) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+    const userId = userResult.rows[0].id;
 
-    const result = await db.query(
-      `SELECT prt.id, prt.expires_at, prt.used, u.email
-         FROM password_reset_tokens prt
-         JOIN users u ON u.id = prt.user_id
-        WHERE prt.token = $1`,
-      [tokenHash]
+    // Hash the OTP for comparison
+    const otpHash = crypto.createHash('sha256').update(otp).digest('hex');
+
+    // Find matching active token
+    const tokRes = await db.query(
+      `SELECT id, expires_at, used FROM password_reset_tokens
+        WHERE user_id = $1 AND token = $2`,
+      [userId, otpHash]
     );
 
-    if (result.rows.length === 0) {
+    if (tokRes.rows.length === 0) {
       return res.status(400).json({
         success: false,
-        message: 'Invalid or expired reset link',
+        message: 'Invalid OTP. Please check and try again.',
       });
     }
 
-    const row = result.rows[0];
+    const row = tokRes.rows[0];
 
     if (row.used) {
       return res.status(400).json({
         success: false,
-        message: 'This reset link has already been used',
+        message: 'This OTP has already been used. Request a new one.',
       });
     }
 
     if (new Date(row.expires_at) < new Date()) {
       return res.status(400).json({
         success: false,
-        message: 'This reset link has expired. Please request a new one.',
+        message: 'OTP expired. Please request a new one.',
       });
+    }
+
+    // OTP valid — generate a short-lived reset token (10 min)
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    resetTokenStore.set(resetToken, {
+      userId,
+      tokenRowId: row.id,
+      expiresAt: Date.now() + 10 * 60 * 1000,
+    });
+
+    // Clean up expired tokens from memory
+    for (const [k, v] of resetTokenStore) {
+      if (v.expiresAt < Date.now()) resetTokenStore.delete(k);
     }
 
     res.status(200).json({
       success: true,
-      data: { email: row.email },
+      message: 'OTP verified. You can now reset your password.',
+      data: { resetToken },
     });
   } catch (error) {
-    console.error('Verify Reset Token Error:', error);
+    console.error('Verify OTP Error:', error);
     res.status(500).json({ success: false, message: 'Server Error' });
   }
 };
 
 // ============================================================
-// @desc    Reset password using a valid token
+// @desc    Step 3: Reset password using reset token
 // @route   POST /api/auth/reset-password
 // ============================================================
 exports.resetPassword = async (req, res) => {
-  const { token, newPassword } = req.body;
+  const { resetToken, newPassword } = req.body;
 
-  if (!token || !newPassword) {
+  if (!resetToken || !newPassword) {
     return res.status(400).json({
       success: false,
-      message: 'Token and new password are required',
+      message: 'Reset token and new password are required',
     });
   }
 
@@ -308,75 +343,57 @@ exports.resetPassword = async (req, res) => {
     });
   }
 
+  const tokenData = resetTokenStore.get(resetToken);
+
+  if (!tokenData) {
+    return res.status(400).json({
+      success: false,
+      message: 'Invalid or expired reset session. Please start over.',
+    });
+  }
+
+  if (tokenData.expiresAt < Date.now()) {
+    resetTokenStore.delete(resetToken);
+    return res.status(400).json({
+      success: false,
+      message: 'Reset session expired. Please start over.',
+    });
+  }
+
   const client = await db.pool.connect();
   try {
     await client.query('BEGIN');
 
-    const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
-
-    // 1. Find the token row
-    const tokRes = await client.query(
-      `SELECT id, user_id, expires_at, used
-         FROM password_reset_tokens
-        WHERE token = $1
-        FOR UPDATE`,
-      [tokenHash]
-    );
-
-    if (tokRes.rows.length === 0) {
-      await client.query('ROLLBACK');
-      return res.status(400).json({
-        success: false,
-        message: 'Invalid reset link',
-      });
-    }
-
-    const row = tokRes.rows[0];
-
-    if (row.used) {
-      await client.query('ROLLBACK');
-      return res.status(400).json({
-        success: false,
-        message: 'This reset link has already been used',
-      });
-    }
-
-    if (new Date(row.expires_at) < new Date()) {
-      await client.query('ROLLBACK');
-      return res.status(400).json({
-        success: false,
-        message: 'This reset link has expired',
-      });
-    }
-
-    // 2. Hash the new password with bcrypt
+    // Hash new password
     const newHash = await bcrypt.hash(newPassword, 10);
 
-    // 3. Update the user's password
+    // Update user password
     await client.query(
-      'UPDATE users SET password_hash = $1 WHERE id = $2',
-      [newHash, row.user_id]
+      `UPDATE users SET password_hash = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2`,
+      [newHash, tokenData.userId]
     );
 
-    // 4. Mark token as used (single-use)
+    // Mark OTP as used
     await client.query(
-      'UPDATE password_reset_tokens SET used = true WHERE id = $1',
-      [row.id]
+      `UPDATE password_reset_tokens SET used = true WHERE id = $1`,
+      [tokenData.tokenRowId]
     );
 
-    // 5. (Bonus) Invalidate ALL other unused reset tokens for this user
+    // Invalidate all other unused tokens for this user
     await client.query(
-      `UPDATE password_reset_tokens
-          SET used = true
+      `UPDATE password_reset_tokens SET used = true
         WHERE user_id = $1 AND used = false`,
-      [row.user_id]
+      [tokenData.userId]
     );
 
     await client.query('COMMIT');
 
+    // Remove from in-memory store
+    resetTokenStore.delete(resetToken);
+
     res.status(200).json({
       success: true,
-      message: 'Password has been reset successfully. You can now log in.',
+      message: 'Password reset successfully. You can now log in.',
     });
   } catch (error) {
     await client.query('ROLLBACK');

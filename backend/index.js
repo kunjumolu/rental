@@ -20,6 +20,7 @@ const reportsRoutes = require('./src/routes/reportsRoutes');
 const settingsRoutes = require('./src/routes/settingsRoutes');
 const expenseRoutes = require('./src/routes/expenseRoutes');
 const notificationRoutes = require('./src/routes/notificationRoutes');
+const userRoutes = require('./src/routes/userRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -56,6 +57,7 @@ app.use('/api/reports', reportsRoutes);
 app.use('/api/settings',settingsRoutes);
 app.use('/api/expenses', expenseRoutes);
 app.use('/api/notifications', notificationRoutes);
+app.use('/api/users', userRoutes);
 
 // Default & Error Handlers
 app.get('/', (req, res) => res.json({ message: 'Welcome to ERMS API' }));

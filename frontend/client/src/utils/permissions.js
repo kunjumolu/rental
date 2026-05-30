@@ -46,6 +46,10 @@ export const PERMISSIONS = {
   ADD_BILL: ["admin", "manager"],
   DELETE_BILL: ["admin"],
 
+  VIEW_PROFILE: ["admin", "manager", "staff"],
+  MANAGE_USERS: ["admin"],
+  
+
   VIEW_SETTINGS: ["admin", "manager", "staff"],
   EDIT_SETTINGS: ["admin"],
 };
