@@ -1,29 +1,38 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { BookOpen } from "lucide-react";
+import {
+  BookOpen,
+  ArrowUpRight,
+  ArrowDownRight,
+  Search,
+} from "lucide-react";
 import { formatCurrency } from "../../utils/currency";
 
 const refTypeColors = {
-  invoice: { bg: "#eff6ff", color: "#3b82f6" },
-  payment: { bg: "#f0fdf4", color: "#10b981" },
-  bill: { bg: "#f5f3ff", color: "#8b5cf6" },
-};
-
-const colStyle = {
-  padding: "13px 16px",
-  fontSize: "13px",
-  color: "#374151",
-  borderBottom: "1px solid #f3f4f6",
-  verticalAlign: "middle",
+  invoice: { bg: "#eff6ff", color: "#2563eb" },
+  payment: { bg: "#ecfdf5", color: "#059669" },
+  bill: { bg: "#f5f3ff", color: "#7c3aed" },
+  journal: { bg: "#f3f4f6", color: "#374151" },
 };
 
 const headerStyle = {
-  padding: "10px 16px",
+  padding: "14px 18px",
   fontSize: "12px",
-  fontWeight: 600,
+  fontWeight: 700,
   color: "#6b7280",
   textAlign: "left",
   borderBottom: "1px solid #e5e7eb",
-  background: "#fff",
+  background: "#f9fafb",
+  textTransform: "uppercase",
+  letterSpacing: "0.04em",
+  whiteSpace: "nowrap",
+};
+
+const colStyle = {
+  padding: "16px 18px",
+  fontSize: "14px",
+  color: "#374151",
+  borderBottom: "1px solid #f3f4f6",
+  verticalAlign: "middle",
 };
 
 export default function GeneralLedger() {
@@ -67,6 +76,7 @@ export default function GeneralLedger() {
   const filteredEntries = useMemo(() => {
     return entries.filter((entry) => {
       const search = searchTerm.toLowerCase();
+
       return (
         entry.account_name?.toLowerCase().includes(search) ||
         entry.account_code?.toLowerCase().includes(search) ||
@@ -76,101 +86,394 @@ export default function GeneralLedger() {
     });
   }, [entries, searchTerm]);
 
+  const totals = useMemo(() => {
+    return filteredEntries.reduce(
+      (acc, entry) => {
+        acc.debit += Number(entry.debit || 0);
+        acc.credit += Number(entry.credit || 0);
+        return acc;
+      },
+      {
+        debit: 0,
+        credit: 0,
+      }
+    );
+  }, [filteredEntries]);
+
   return (
     <div
       style={{
         background: "#fff",
         border: "1px solid #e5e7eb",
-        borderRadius: "12px",
+        borderRadius: "16px",
         overflow: "hidden",
       }}
     >
-      {/* Section header */}
+      {/* Header */}
       <div
         style={{
+          padding: "22px 24px",
+          borderBottom: "1px solid #e5e7eb",
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
           gap: "16px",
-          padding: "20px 24px 16px",
-          borderBottom: "1px solid #e5e7eb",
+          flexWrap: "wrap",
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-          <BookOpen size={18} color="#374151" />
-          <h3 style={{ fontSize: "16px", fontWeight: 600, color: "#111827", margin: 0 }}>
-            General Ledger
-          </h3>
+        <div>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "10px",
+              marginBottom: "4px",
+            }}
+          >
+            <div
+              style={{
+                width: "34px",
+                height: "34px",
+                borderRadius: "10px",
+                background: "#eef2ff",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <BookOpen size={18} color="#4f46e5" />
+            </div>
+
+            <h3
+              style={{
+                fontSize: "17px",
+                fontWeight: 700,
+                color: "#111827",
+                margin: 0,
+              }}
+            >
+              General Ledger
+            </h3>
+          </div>
+
+          <p
+            style={{
+              fontSize: "13px",
+              color: "#6b7280",
+              margin: 0,
+            }}
+          >
+            View and track all accounting journal entries
+          </p>
         </div>
 
-        <input
-          type="text"
-          placeholder="Search ledger..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
+        <div
           style={{
-            height: "40px",
-            width: "240px",
-            border: "1px solid #d1d5db",
-            borderRadius: "10px",
-            padding: "0 14px",
-            fontSize: "14px",
-            outline: "none",
+            position: "relative",
           }}
-        />
+        >
+          <Search
+            size={16}
+            color="#9ca3af"
+            style={{
+              position: "absolute",
+              left: "12px",
+              top: "50%",
+              transform: "translateY(-50%)",
+            }}
+          />
+
+          <input
+            type="text"
+            placeholder="Search ledger..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            style={{
+              height: "42px",
+              width: "260px",
+              border: "1px solid #d1d5db",
+              borderRadius: "12px",
+              padding: "0 14px 0 38px",
+              fontSize: "14px",
+              outline: "none",
+              background: "#fff",
+            }}
+          />
+        </div>
       </div>
 
+      {/* Summary */}
+      {!loading && !error && (
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(3, 1fr)",
+            borderBottom: "1px solid #e5e7eb",
+          }}
+        >
+          <div
+            style={{
+              padding: "18px 24px",
+              borderRight: "1px solid #e5e7eb",
+            }}
+          >
+            <p
+              style={{
+                fontSize: "12px",
+                color: "#6b7280",
+                margin: "0 0 6px",
+                fontWeight: 600,
+              }}
+            >
+              TOTAL DEBIT
+            </p>
+
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "8px",
+              }}
+            >
+              <ArrowUpRight size={18} color="#10b981" />
+
+              <h4
+                style={{
+                  margin: 0,
+                  fontSize: "20px",
+                  fontWeight: 700,
+                  color: "#10b981",
+                }}
+              >
+                {formatCurrency(totals.debit)}
+              </h4>
+            </div>
+          </div>
+
+          <div
+            style={{
+              padding: "18px 24px",
+              borderRight: "1px solid #e5e7eb",
+            }}
+          >
+            <p
+              style={{
+                fontSize: "12px",
+                color: "#6b7280",
+                margin: "0 0 6px",
+                fontWeight: 600,
+              }}
+            >
+              TOTAL CREDIT
+            </p>
+
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "8px",
+              }}
+            >
+              <ArrowDownRight size={18} color="#ef4444" />
+
+              <h4
+                style={{
+                  margin: 0,
+                  fontSize: "20px",
+                  fontWeight: 700,
+                  color: "#ef4444",
+                }}
+              >
+                {formatCurrency(totals.credit)}
+              </h4>
+            </div>
+          </div>
+
+          <div
+            style={{
+              padding: "18px 24px",
+            }}
+          >
+            <p
+              style={{
+                fontSize: "12px",
+                color: "#6b7280",
+                margin: "0 0 6px",
+                fontWeight: 600,
+              }}
+            >
+              TOTAL ENTRIES
+            </p>
+
+            <h4
+              style={{
+                margin: 0,
+                fontSize: "20px",
+                fontWeight: 700,
+                color: "#111827",
+              }}
+            >
+              {filteredEntries.length}
+            </h4>
+          </div>
+        </div>
+      )}
+
+      {/* Body */}
       {loading ? (
-        <div style={{ padding: "24px", color: "#6b7280", fontSize: "14px" }}>
-          Loading ledger entries...
+        <div
+          style={{
+            padding: "24px",
+          }}
+        >
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div
+              key={i}
+              style={{
+                display: "grid",
+                gridTemplateColumns:
+                  "110px 1.3fr 1fr 1.4fr 120px 120px 120px",
+                gap: "16px",
+                padding: "14px 0",
+                borderBottom: "1px solid #f3f4f6",
+              }}
+            >
+              {Array.from({ length: 7 }).map((__, j) => (
+                <div
+                  key={j}
+                  style={{
+                    height: "16px",
+                    borderRadius: "6px",
+                    background: "#f3f4f6",
+                  }}
+                />
+              ))}
+            </div>
+          ))}
         </div>
       ) : error ? (
-        <div style={{ padding: "24px", color: "red", fontSize: "14px" }}>
+        <div
+          style={{
+            padding: "24px",
+            color: "#ef4444",
+            fontSize: "14px",
+          }}
+        >
           {error}
         </div>
       ) : filteredEntries.length === 0 ? (
-        <div style={{ padding: "24px", color: "#6b7280", fontSize: "14px" }}>
-          No ledger entries found.
+        <div
+          style={{
+            padding: "60px 24px",
+            textAlign: "center",
+          }}
+        >
+          <div
+            style={{
+              fontSize: "42px",
+              marginBottom: "10px",
+            }}
+          >
+            📚
+          </div>
+
+          <h4
+            style={{
+              margin: 0,
+              fontSize: "16px",
+              fontWeight: 600,
+              color: "#374151",
+            }}
+          >
+            No ledger entries found
+          </h4>
+
+          <p
+            style={{
+              marginTop: "6px",
+              color: "#9ca3af",
+              fontSize: "14px",
+            }}
+          >
+            Try changing your search or create accounting transactions.
+          </p>
         </div>
       ) : (
         <div style={{ overflowX: "auto" }}>
-          <table style={{ width: "100%", borderCollapse: "collapse" }}>
+          <table
+            style={{
+              width: "100%",
+              borderCollapse: "collapse",
+              minWidth: "1100px",
+            }}
+          >
             <thead>
               <tr>
-                <th style={{ ...headerStyle, width: "110px" }}>Date</th>
+                <th style={{ ...headerStyle, width: "120px" }}>Date</th>
                 <th style={headerStyle}>Account</th>
                 <th style={headerStyle}>Reference</th>
                 <th style={headerStyle}>Description</th>
-                <th style={{ ...headerStyle, textAlign: "right" }}>Debit</th>
-                <th style={{ ...headerStyle, textAlign: "right" }}>Credit</th>
-                <th style={{ ...headerStyle, textAlign: "right" }}>Balance</th>
+                <th style={{ ...headerStyle, textAlign: "right" }}>
+                  Debit
+                </th>
+                <th style={{ ...headerStyle, textAlign: "right" }}>
+                  Credit
+                </th>
+                <th style={{ ...headerStyle, textAlign: "right" }}>
+                  Balance
+                </th>
               </tr>
             </thead>
+
             <tbody>
               {filteredEntries.map((entry, i) => {
-                const refStyle = refTypeColors[entry.reference_type] || refTypeColors.invoice;
+                const refStyle =
+                  refTypeColors[entry.reference_type] ||
+                  refTypeColors.journal;
 
                 return (
                   <tr
                     key={entry.id}
                     style={{
                       background: i % 2 === 0 ? "#fff" : "#fafafa",
-                      transition: "background 0.1s",
+                      transition: "0.15s ease",
                     }}
-                    onMouseEnter={(e) => (e.currentTarget.style.background = "#f0f9ff")}
-                    onMouseLeave={(e) =>
-                      (e.currentTarget.style.background = i % 2 === 0 ? "#fff" : "#fafafa")
-                    }
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = "#f9fafb";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background =
+                        i % 2 === 0 ? "#fff" : "#fafafa";
+                    }}
                   >
-                    <td style={{ ...colStyle, color: "#6b7280", fontSize: "12px" }}>
+                    <td
+                      style={{
+                        ...colStyle,
+                        color: "#6b7280",
+                        fontSize: "13px",
+                        whiteSpace: "nowrap",
+                      }}
+                    >
                       {entry.entry_date}
                     </td>
 
                     <td style={colStyle}>
-                      <div style={{ fontWeight: 500, color: "#111827" }}>
+                      <div
+                        style={{
+                          fontWeight: 600,
+                          color: "#111827",
+                        }}
+                      >
                         {entry.account_name}
                       </div>
-                      <div style={{ fontSize: "11px", color: "#9ca3af", marginTop: "2px" }}>
+
+                      <div
+                        style={{
+                          fontSize: "12px",
+                          color: "#9ca3af",
+                          marginTop: "3px",
+                        }}
+                      >
                         {entry.account_code}
                       </div>
                     </td>
@@ -178,44 +481,54 @@ export default function GeneralLedger() {
                     <td style={colStyle}>
                       <span
                         style={{
-                          display: "inline-block",
-                          padding: "2px 8px",
-                          borderRadius: "4px",
+                          display: "inline-flex",
+                          alignItems: "center",
+                          padding: "4px 10px",
+                          borderRadius: "999px",
                           fontSize: "11px",
-                          fontWeight: 600,
+                          fontWeight: 700,
                           background: refStyle.bg,
                           color: refStyle.color,
-                          marginBottom: "3px",
+                          textTransform: "capitalize",
+                          marginBottom: "6px",
                         }}
                       >
                         {entry.reference_type}
                       </span>
-                      <div style={{ fontSize: "11px", color: "#9ca3af" }}>
-                        {entry.reference_id}
+
+                      <div
+                        style={{
+                          fontSize: "12px",
+                          color: "#6b7280",
+                        }}
+                      >
+                        {entry.reference_id || "-"}
                       </div>
                     </td>
 
-                    <td style={{ ...colStyle, color: "#374151" }}>
-                      {entry.description}
+                    <td
+                      style={{
+                        ...colStyle,
+                        maxWidth: "280px",
+                        color: "#374151",
+                      }}
+                    >
+                      {entry.description || "-"}
                     </td>
 
-                    <td style={{ ...colStyle, textAlign: "right", fontWeight: 600 }}>
+                    <td
+                      style={{
+                        ...colStyle,
+                        textAlign: "right",
+                        fontWeight: 700,
+                      }}
+                    >
                       {Number(entry.debit) > 0 ? (
                         <span style={{ color: "#10b981" }}>
                           {formatCurrency(entry.debit)}
                         </span>
                       ) : (
-                        <span style={{ color: "#d1d5db" }}>–</span>
-                      )}
-                    </td>
-
-                    <td style={{ ...colStyle, textAlign: "right", fontWeight: 600 }}>
-                      {Number(entry.credit) > 0 ? (
-                        <span style={{ color: "#ef4444" }}>
-                          {formatCurrency(entry.credit)}
-                        </span>
-                      ) : (
-                        <span style={{ color: "#d1d5db" }}>–</span>
+                        <span style={{ color: "#d1d5db" }}>—</span>
                       )}
                     </td>
 
@@ -223,7 +536,23 @@ export default function GeneralLedger() {
                       style={{
                         ...colStyle,
                         textAlign: "right",
-                        fontWeight: 600,
+                        fontWeight: 700,
+                      }}
+                    >
+                      {Number(entry.credit) > 0 ? (
+                        <span style={{ color: "#ef4444" }}>
+                          {formatCurrency(entry.credit)}
+                        </span>
+                      ) : (
+                        <span style={{ color: "#d1d5db" }}>—</span>
+                      )}
+                    </td>
+
+                    <td
+                      style={{
+                        ...colStyle,
+                        textAlign: "right",
+                        fontWeight: 700,
                         color: "#111827",
                       }}
                     >
@@ -233,6 +562,54 @@ export default function GeneralLedger() {
                 );
               })}
             </tbody>
+
+            <tfoot>
+              <tr
+                style={{
+                  background: "#f9fafb",
+                  borderTop: "2px solid #e5e7eb",
+                }}
+              >
+                <td
+                  colSpan={4}
+                  style={{
+                    padding: "16px 18px",
+                    textAlign: "right",
+                    fontSize: "14px",
+                    fontWeight: 700,
+                    color: "#111827",
+                  }}
+                >
+                  Totals
+                </td>
+
+                <td
+                  style={{
+                    padding: "16px 18px",
+                    textAlign: "right",
+                    fontSize: "14px",
+                    fontWeight: 700,
+                    color: "#10b981",
+                  }}
+                >
+                  {formatCurrency(totals.debit)}
+                </td>
+
+                <td
+                  style={{
+                    padding: "16px 18px",
+                    textAlign: "right",
+                    fontSize: "14px",
+                    fontWeight: 700,
+                    color: "#ef4444",
+                  }}
+                >
+                  {formatCurrency(totals.credit)}
+                </td>
+
+                <td></td>
+              </tr>
+            </tfoot>
           </table>
         </div>
       )}

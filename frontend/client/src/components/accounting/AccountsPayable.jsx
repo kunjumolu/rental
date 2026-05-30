@@ -1,9 +1,15 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Eye, Pencil, Trash2, DollarSign, Plus } from "lucide-react";
+import {
+  Eye,
+  Trash2,
+  DollarSign,
+  Plus,
+} from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 export default function AccountsPayable() {
   const navigate = useNavigate();
+
   const [bills, setBills] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -29,7 +35,9 @@ export default function AccountsPayable() {
       const data = await res.json();
 
       if (!res.ok || !data.success) {
-        throw new Error(data.message || "Failed to fetch payable records");
+        throw new Error(
+          data.message || "Failed to fetch payable records"
+        );
       }
 
       setBills(data.data || []);
@@ -45,17 +53,22 @@ export default function AccountsPayable() {
     try {
       const token = localStorage.getItem("token");
 
-      const res = await fetch(`http://localhost:5000/api/bills/${bill.id}/pay`, {
-        method: "PATCH",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const res = await fetch(
+        `http://localhost:5000/api/bills/${bill.id}/pay`,
+        {
+          method: "PATCH",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
       const data = await res.json();
 
       if (!res.ok || !data.success) {
-        throw new Error(data.message || "Failed to mark bill paid");
+        throw new Error(
+          data.message || "Failed to mark bill paid"
+        );
       }
 
       fetchBills();
@@ -66,25 +79,37 @@ export default function AccountsPayable() {
   };
 
   const handleDelete = async (billId) => {
-    if (!window.confirm("Are you sure you want to delete this bill?")) return;
+    if (
+      !window.confirm(
+        "Are you sure you want to delete this bill?"
+      )
+    )
+      return;
 
     try {
       const token = localStorage.getItem("token");
 
-      const res = await fetch(`http://localhost:5000/api/bills/${billId}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const res = await fetch(
+        `http://localhost:5000/api/bills/${billId}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
       const data = await res.json();
 
       if (!res.ok || !data.success) {
-        throw new Error(data.message || "Failed to delete bill");
+        throw new Error(
+          data.message || "Failed to delete bill"
+        );
       }
 
-      setBills((prev) => prev.filter((b) => b.id !== billId));
+      setBills((prev) =>
+        prev.filter((b) => b.id !== billId)
+      );
     } catch (err) {
       console.error(err);
       alert(err.message);
@@ -94,39 +119,68 @@ export default function AccountsPayable() {
   const filteredBills = useMemo(() => {
     return bills.filter((bill) => {
       const search = searchTerm.toLowerCase();
+
       return (
-        bill.bill_number?.toLowerCase().includes(search) ||
-        bill.vendor_name?.toLowerCase().includes(search) ||
-        bill.vendor_email?.toLowerCase().includes(search)
+        bill.bill_number
+          ?.toLowerCase()
+          .includes(search) ||
+        bill.vendor_name
+          ?.toLowerCase()
+          .includes(search) ||
+        bill.vendor_email
+          ?.toLowerCase()
+          .includes(search)
       );
     });
   }, [bills, searchTerm]);
 
   const formatCurrency = (value) =>
-    `₹${Number(value || 0).toLocaleString("en-IN", {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    })}`;
+    `₹${Number(value || 0).toLocaleString(
+      "en-IN",
+      {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      }
+    )}`;
 
   const formatDate = (dateStr) => {
     if (!dateStr) return "-";
+
     try {
-      return new Date(dateStr).toLocaleDateString("en-IN");
+      return new Date(dateStr).toLocaleDateString(
+        "en-IN"
+      );
     } catch {
       return dateStr;
     }
   };
 
   const statusStyles = {
-    pending: { bg: "#fef3c7", color: "#92400e" },
-    paid: { bg: "#d1fae5", color: "#065f46" },
-    overdue: { bg: "#fee2e2", color: "#b91c1c" },
-    draft: { bg: "#f3f4f6", color: "#374151" },
+    pending: {
+      bg: "#fef3c7",
+      color: "#92400e",
+    },
+    paid: {
+      bg: "#d1fae5",
+      color: "#065f46",
+    },
+    overdue: {
+      bg: "#fee2e2",
+      color: "#b91c1c",
+    },
+    draft: {
+      bg: "#f3f4f6",
+      color: "#374151",
+    },
   };
 
   const totalPayables = filteredBills
     .filter((b) => b.status !== "paid")
-    .reduce((sum, b) => sum + Number(b.balance_amount || 0), 0);
+    .reduce(
+      (sum, b) =>
+        sum + Number(b.balance_amount || 0),
+      0
+    );
 
   const overdueCount = filteredBills.filter(
     (b) => b.status === "overdue"
@@ -137,75 +191,59 @@ export default function AccountsPayable() {
   ).length;
 
   return (
-    <div
-      style={{
-        background: "#fff",
-        border: "1px solid #e5e7eb",
-        borderRadius: "12px",
-        overflow: "hidden",
-      }}
-    >
+    <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden">
       {/* Header */}
-      <div
-        style={{
-          padding: "20px 24px",
-          borderBottom: "1px solid #e5e7eb",
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          gap: "16px",
-          flexWrap: "wrap",
-        }}
-      >
+      <div className="p-4 sm:p-6 border-b border-gray-200 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
         <div>
-          <h3
-            style={{
-              fontSize: "16px",
-              fontWeight: 600,
-              color: "#111827",
-              margin: 0,
-            }}
-          >
+          <h3 className="text-lg font-semibold text-gray-900">
             Accounts Payable
           </h3>
-          <p style={{ fontSize: "13px", color: "#6b7280", marginTop: "4px" }}>
+
+          <p className="text-sm text-gray-500 mt-1">
             Vendor bills and outstanding payables
           </p>
         </div>
 
-        <div style={{ display: "flex", alignItems: "center", gap: "12px", flexWrap: "wrap" }}>
+        <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
           <input
             type="text"
             placeholder="Search bills..."
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            style={{
-              height: "40px",
-              width: "220px",
-              border: "1px solid #d1d5db",
-              borderRadius: "10px",
-              padding: "0 14px",
-              fontSize: "14px",
-              outline: "none",
-            }}
+            onChange={(e) =>
+              setSearchTerm(e.target.value)
+            }
+            className="
+              h-11
+              w-full
+              sm:w-[240px]
+              border
+              border-gray-300
+              rounded-xl
+              px-4
+              text-sm
+              outline-none
+              focus:ring-2
+              focus:ring-purple-500
+            "
           />
 
           <button
             onClick={() => navigate("/bills")}
-            style={{
-              height: "40px",
-              padding: "0 14px",
-              borderRadius: "10px",
-              background: "#6B21A8",
-              color: "#fff",
-              border: "none",
-              fontSize: "14px",
-              fontWeight: 600,
-              display: "flex",
-              alignItems: "center",
-              gap: "8px",
-              cursor: "pointer",
-            }}
+            className="
+              h-11
+              px-4
+              rounded-xl
+              bg-[#6B21A8]
+              text-white
+              text-sm
+              font-semibold
+              flex
+              items-center
+              justify-center
+              gap-2
+              hover:bg-purple-800
+              transition
+            "
           >
             <Plus size={16} />
             New Bill
@@ -213,223 +251,271 @@ export default function AccountsPayable() {
         </div>
       </div>
 
-      {/* Summary Stats */}
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(3, 1fr)",
-          gap: "0",
-          borderBottom: "1px solid #e5e7eb",
-        }}
-      >
-        <div
-          style={{
-            padding: "16px 24px",
-            borderRight: "1px solid #e5e7eb",
-          }}
-        >
-          <p style={{ fontSize: "12px", color: "#6b7280", margin: "0 0 4px 0" }}>
+      {/* Summary */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 border-b border-gray-200">
+        <div className="p-5 border-b sm:border-b-0 sm:border-r border-gray-200">
+          <p className="text-xs text-gray-500 mb-1">
             Total Payables
           </p>
-          <p style={{ fontSize: "20px", fontWeight: 700, color: "#ef4444", margin: 0 }}>
+
+          <p className="text-2xl font-bold text-red-500">
             {formatCurrency(totalPayables)}
           </p>
         </div>
-        <div
-          style={{
-            padding: "16px 24px",
-            borderRight: "1px solid #e5e7eb",
-          }}
-        >
-          <p style={{ fontSize: "12px", color: "#6b7280", margin: "0 0 4px 0" }}>
+
+        <div className="p-5 border-b sm:border-b-0 sm:border-r border-gray-200">
+          <p className="text-xs text-gray-500 mb-1">
             Pending Bills
           </p>
-          <p style={{ fontSize: "20px", fontWeight: 700, color: "#f59e0b", margin: 0 }}>
+
+          <p className="text-2xl font-bold text-amber-500">
             {pendingCount}
           </p>
         </div>
-        <div style={{ padding: "16px 24px" }}>
-          <p style={{ fontSize: "12px", color: "#6b7280", margin: "0 0 4px 0" }}>
+
+        <div className="p-5">
+          <p className="text-xs text-gray-500 mb-1">
             Overdue Bills
           </p>
-          <p style={{ fontSize: "20px", fontWeight: 700, color: "#ef4444", margin: 0 }}>
+
+          <p className="text-2xl font-bold text-red-500">
             {overdueCount}
           </p>
         </div>
       </div>
 
-      {/* Body */}
+      {/* Loading */}
       {loading ? (
-        <div style={{ padding: "24px", color: "#6b7280", fontSize: "14px" }}>
+        <div className="p-6 text-sm text-gray-500">
           Loading payable records...
         </div>
       ) : error ? (
-        <div style={{ padding: "24px", color: "red", fontSize: "14px" }}>
+        <div className="p-6 text-sm text-red-500">
           {error}
         </div>
       ) : filteredBills.length === 0 ? (
-        <div
-          style={{
-            padding: "48px 24px",
-            textAlign: "center",
-            color: "#9ca3af",
-            fontSize: "14px",
-          }}
-        >
-          <div style={{ fontSize: "40px", marginBottom: "8px" }}>📄</div>
-          <p style={{ fontWeight: 600, color: "#6b7280", marginBottom: "4px" }}>
+        <div className="p-10 text-center">
+          <div className="text-5xl mb-3">
+            📄
+          </div>
+
+          <p className="font-semibold text-gray-700">
             No bills found
           </p>
-          <p>Create your first bill from the Purchases → Bills section</p>
+
+          <p className="text-sm text-gray-500 mt-1">
+            Create your first bill from the Bills
+            section
+          </p>
+
           <button
             onClick={() => navigate("/bills")}
-            style={{
-              marginTop: "16px",
-              padding: "8px 20px",
-              borderRadius: "10px",
-              background: "#6B21A8",
-              color: "#fff",
-              border: "none",
-              fontSize: "13px",
-              fontWeight: 600,
-              cursor: "pointer",
-            }}
+            className="
+              mt-5
+              px-5
+              py-2.5
+              rounded-xl
+              bg-[#6B21A8]
+              text-white
+              text-sm
+              font-semibold
+              hover:bg-purple-800
+              transition
+            "
           >
             Go to Bills
           </button>
         </div>
       ) : (
-        <div style={{ overflowX: "auto" }}>
-          <table style={{ width: "100%", borderCollapse: "collapse" }}>
+        <div className="overflow-x-auto">
+          <table className="min-w-[1000px] w-full border-collapse">
             <thead>
-              <tr style={{ borderBottom: "1px solid #e5e7eb", background: "#f9fafb" }}>
-                <th style={headerCell}>Bill #</th>
-                <th style={headerCell}>Vendor</th>
-                <th style={headerCell}>Bill Date</th>
-                <th style={headerCell}>Due Date</th>
-                <th style={{ ...headerCell, textAlign: "right" }}>Amount</th>
-                <th style={{ ...headerCell, textAlign: "right" }}>Paid</th>
-                <th style={{ ...headerCell, textAlign: "right" }}>Balance</th>
-                <th style={headerCell}>Status</th>
-                <th style={headerCell}>Actions</th>
+              <tr className="bg-gray-50 border-b border-gray-200">
+                <th className={headerCell}>
+                  Bill #
+                </th>
+
+                <th className={headerCell}>
+                  Vendor
+                </th>
+
+                <th className={headerCell}>
+                  Bill Date
+                </th>
+
+                <th className={headerCell}>
+                  Due Date
+                </th>
+
+                <th
+                  className={`${headerCell} text-right`}
+                >
+                  Amount
+                </th>
+
+                <th
+                  className={`${headerCell} text-right`}
+                >
+                  Paid
+                </th>
+
+                <th
+                  className={`${headerCell} text-right`}
+                >
+                  Balance
+                </th>
+
+                <th className={headerCell}>
+                  Status
+                </th>
+
+                <th className={headerCell}>
+                  Actions
+                </th>
               </tr>
             </thead>
 
             <tbody>
               {filteredBills.map((bill, index) => {
-                const style = statusStyles[bill.status] || {
-                  bg: "#f3f4f6",
-                  color: "#374151",
-                };
+                const style =
+                  statusStyles[bill.status] || {
+                    bg: "#f3f4f6",
+                    color: "#374151",
+                  };
 
                 return (
                   <tr
                     key={bill.id}
-                    style={{
-                      borderBottom: "1px solid #f3f4f6",
-                      background: index % 2 === 0 ? "#fff" : "#fafafa",
-                    }}
+                    className={
+                      index % 2 === 0
+                        ? "bg-white border-b border-gray-100"
+                        : "bg-gray-50 border-b border-gray-100"
+                    }
                   >
-                    <td style={{ ...bodyCell, fontWeight: 600, color: "#6B21A8" }}>
+                    <td className="px-4 py-4 text-sm font-semibold text-[#6B21A8]">
                       {bill.bill_number || "-"}
                     </td>
 
-                    <td style={bodyCell}>
-                      <div style={{ fontWeight: 500, color: "#111827" }}>
+                    <td className="px-4 py-4 text-sm">
+                      <div className="font-medium text-gray-900">
                         {bill.vendor_name || "-"}
                       </div>
+
                       {bill.vendor_email && (
-                        <div style={{ fontSize: "12px", color: "#9ca3af", marginTop: "2px" }}>
+                        <div className="text-xs text-gray-400 mt-1">
                           {bill.vendor_email}
                         </div>
                       )}
                     </td>
 
-                    <td style={{ ...bodyCell, color: "#6b7280" }}>
-                      {formatDate(bill.bill_date || bill.created_at)}
+                    <td className="px-4 py-4 text-sm text-gray-500">
+                      {formatDate(
+                        bill.bill_date ||
+                          bill.created_at
+                      )}
                     </td>
 
                     <td
-                      style={{
-                        ...bodyCell,
-                        color:
-                          bill.status === "overdue" ? "#ef4444" : "#6b7280",
-                        fontWeight:
-                          bill.status === "overdue" ? 600 : 400,
-                      }}
+                      className={`
+                        px-4 py-4 text-sm
+                        ${
+                          bill.status === "overdue"
+                            ? "text-red-500 font-semibold"
+                            : "text-gray-500"
+                        }
+                      `}
                     >
                       {formatDate(bill.due_date)}
                     </td>
 
-                    <td style={{ ...bodyCell, textAlign: "right", fontWeight: 600 }}>
+                    <td className="px-4 py-4 text-sm font-semibold text-right">
                       {formatCurrency(bill.amount)}
                     </td>
 
-                    <td
-                      style={{
-                        ...bodyCell,
-                        textAlign: "right",
-                        color: "#10b981",
-                        fontWeight: 600,
-                      }}
-                    >
-                      {formatCurrency(bill.paid_amount)}
+                    <td className="px-4 py-4 text-sm font-semibold text-green-500 text-right">
+                      {formatCurrency(
+                        bill.paid_amount
+                      )}
                     </td>
 
                     <td
-                      style={{
-                        ...bodyCell,
-                        textAlign: "right",
-                        fontWeight: 600,
-                        color:
-                          Number(bill.balance_amount) > 0
-                            ? "#ef4444"
-                            : "#10b981",
-                      }}
+                      className={`
+                        px-4 py-4 text-sm font-semibold text-right
+                        ${
+                          Number(
+                            bill.balance_amount
+                          ) > 0
+                            ? "text-red-500"
+                            : "text-green-500"
+                        }
+                      `}
                     >
-                      {formatCurrency(bill.balance_amount)}
+                      {formatCurrency(
+                        bill.balance_amount
+                      )}
                     </td>
 
-                    <td style={bodyCell}>
+                    <td className="px-4 py-4">
                       <span
                         style={{
-                          display: "inline-flex",
-                          padding: "4px 10px",
-                          borderRadius: "999px",
-                          fontSize: "12px",
-                          fontWeight: 600,
                           background: style.bg,
                           color: style.color,
-                          textTransform: "capitalize",
                         }}
+                        className="
+                          inline-flex
+                          px-3
+                          py-1
+                          rounded-full
+                          text-xs
+                          font-semibold
+                          capitalize
+                        "
                       >
                         {bill.status}
                       </span>
                     </td>
 
-                    <td style={bodyCell}>
-                      <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                        {Number(bill.balance_amount) > 0 &&
-                          bill.status !== "paid" && (
+                    <td className="px-4 py-4">
+                      <div className="flex items-center gap-2">
+                        {Number(
+                          bill.balance_amount
+                        ) > 0 &&
+                          bill.status !==
+                            "paid" && (
                             <button
-                              onClick={() => handleMarkPaid(bill)}
-                              title="Mark as Paid"
+                              onClick={() =>
+                                handleMarkPaid(
+                                  bill
+                                )
+                              }
                               style={iconBtn}
                             >
-                              <DollarSign size={16} color="#10b981" />
+                              <DollarSign
+                                size={16}
+                                color="#10b981"
+                              />
                             </button>
                           )}
+
                         <button
-                          onClick={() => navigate("/bills")}
-                          title="View in Bills"
+                          onClick={() =>
+                            navigate("/bills")
+                          }
                           style={iconBtn}
                         >
                           <Eye size={16} />
                         </button>
+
                         <button
-                          onClick={() => handleDelete(bill.id)}
-                          title="Delete"
-                          style={{ ...iconBtn, color: "#ef4444" }}
+                          onClick={() =>
+                            handleDelete(
+                              bill.id
+                            )
+                          }
+                          style={{
+                            ...iconBtn,
+                            color: "#ef4444",
+                          }}
                         >
                           <Trash2 size={16} />
                         </button>
@@ -440,64 +526,53 @@ export default function AccountsPayable() {
               })}
             </tbody>
 
-            {/* Footer totals */}
             <tfoot>
-              <tr style={{ borderTop: "2px solid #e5e7eb", background: "#f9fafb" }}>
+              <tr className="bg-gray-50 border-t-2 border-gray-200">
                 <td
                   colSpan={4}
-                  style={{
-                    padding: "14px 16px",
-                    fontSize: "14px",
-                    fontWeight: 700,
-                    color: "#111827",
-                    textAlign: "right",
-                  }}
+                  className="
+                    px-4 py-4
+                    text-sm
+                    font-bold
+                    text-right
+                    text-gray-900
+                  "
                 >
                   Total Outstanding:
                 </td>
-                <td
-                  style={{
-                    padding: "14px 16px",
-                    fontSize: "14px",
-                    fontWeight: 700,
-                    color: "#111827",
-                    textAlign: "right",
-                  }}
-                >
+
+                <td className="px-4 py-4 text-sm font-bold text-right">
                   {formatCurrency(
                     filteredBills.reduce(
-                      (sum, b) => sum + Number(b.amount || 0),
+                      (sum, b) =>
+                        sum +
+                        Number(
+                          b.amount || 0
+                        ),
                       0
                     )
                   )}
                 </td>
-                <td
-                  style={{
-                    padding: "14px 16px",
-                    fontSize: "14px",
-                    fontWeight: 700,
-                    color: "#10b981",
-                    textAlign: "right",
-                  }}
-                >
+
+                <td className="px-4 py-4 text-sm font-bold text-green-500 text-right">
                   {formatCurrency(
                     filteredBills.reduce(
-                      (sum, b) => sum + Number(b.paid_amount || 0),
+                      (sum, b) =>
+                        sum +
+                        Number(
+                          b.paid_amount || 0
+                        ),
                       0
                     )
                   )}
                 </td>
-                <td
-                  style={{
-                    padding: "14px 16px",
-                    fontSize: "14px",
-                    fontWeight: 700,
-                    color: "#ef4444",
-                    textAlign: "right",
-                  }}
-                >
-                  {formatCurrency(totalPayables)}
+
+                <td className="px-4 py-4 text-sm font-bold text-red-500 text-right">
+                  {formatCurrency(
+                    totalPayables
+                  )}
                 </td>
+
                 <td colSpan={2}></td>
               </tr>
             </tfoot>
@@ -508,28 +583,13 @@ export default function AccountsPayable() {
   );
 }
 
-const headerCell = {
-  textAlign: "left",
-  padding: "14px 16px",
-  fontSize: "12px",
-  fontWeight: 700,
-  color: "#6b7280",
-  background: "#f9fafb",
-  textTransform: "uppercase",
-  letterSpacing: "0.04em",
-};
-
-const bodyCell = {
-  padding: "14px 16px",
-  fontSize: "14px",
-  color: "#374151",
-};
+const headerCell =
+  "px-4 py-4 text-left text-xs font-bold uppercase tracking-wide text-gray-500";
 
 const iconBtn = {
   background: "none",
   border: "none",
   cursor: "pointer",
-  color: "#374151",
   display: "flex",
   alignItems: "center",
   justifyContent: "center",

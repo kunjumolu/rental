@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
+import { useLocation } from "react-router-dom";
 import CustomersHeader from "../components/customers/CustomersHeader";
 import CustomersFilters from "../components/customers/CustomersFilters";
 import CustomersTable from "../components/customers/CustomersTable";
@@ -8,6 +9,8 @@ import EditCustomerModal from "../components/customers/EditCustomerModal";
 import DeleteCustomerModal from "../components/customers/DeleteCustomerModal";
 
 export default function Customers() {
+  const location = useLocation();
+
   const [customers, setCustomers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -26,6 +29,21 @@ export default function Customers() {
   useEffect(() => {
     fetchCustomers();
   }, []);
+
+  // Read navigation state (from TopCustomers or Topbar Create New)
+  useEffect(() => {
+    if (location.state?.searchCustomer) {
+      setSearchTerm(location.state.searchCustomer);
+      setStatusFilter("all");
+      setSortOption("recent");
+    }
+    if (location.state?.openAddModal) {
+      setIsAddOpen(true);
+    }
+    if (location.state) {
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state]);
 
   const fetchCustomers = async () => {
     try {

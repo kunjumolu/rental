@@ -4,7 +4,6 @@ export default function ChartOfAccounts() {
   const [accounts, setAccounts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-
   const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
@@ -42,6 +41,7 @@ export default function ChartOfAccounts() {
   const filteredAccounts = useMemo(() => {
     return accounts.filter((account) => {
       const search = searchTerm.toLowerCase();
+
       return (
         account.account_code?.toLowerCase().includes(search) ||
         account.account_name?.toLowerCase().includes(search) ||
@@ -70,18 +70,19 @@ export default function ChartOfAccounts() {
       {/* Header */}
       <div
         style={{
-          padding: "20px 24px",
+          padding: window.innerWidth < 768 ? "16px" : "20px 24px",
           borderBottom: "1px solid #e5e7eb",
           display: "flex",
           justifyContent: "space-between",
-          alignItems: "center",
+          alignItems: window.innerWidth < 768 ? "stretch" : "center",
+          flexDirection: window.innerWidth < 768 ? "column" : "row",
           gap: "16px",
         }}
       >
         <div>
           <h3
             style={{
-              fontSize: "16px",
+              fontSize: window.innerWidth < 768 ? "15px" : "16px",
               fontWeight: 600,
               color: "#111827",
               margin: 0,
@@ -89,11 +90,13 @@ export default function ChartOfAccounts() {
           >
             Chart of Accounts
           </h3>
+
           <p
             style={{
               fontSize: "13px",
               color: "#6b7280",
               marginTop: "4px",
+              lineHeight: 1.5,
             }}
           >
             View and manage your accounting account structure
@@ -107,32 +110,63 @@ export default function ChartOfAccounts() {
           onChange={(e) => setSearchTerm(e.target.value)}
           style={{
             height: "40px",
-            width: "240px",
+            width: window.innerWidth < 768 ? "100%" : "240px",
+            minWidth: 0,
             border: "1px solid #d1d5db",
             borderRadius: "10px",
             padding: "0 14px",
             fontSize: "14px",
             outline: "none",
+            boxSizing: "border-box",
           }}
         />
       </div>
 
       {/* Body */}
       {loading ? (
-        <div style={{ padding: "24px", color: "#6b7280", fontSize: "14px" }}>
+        <div
+          style={{
+            padding: "24px",
+            color: "#6b7280",
+            fontSize: "14px",
+          }}
+        >
           Loading accounts...
         </div>
       ) : error ? (
-        <div style={{ padding: "24px", color: "red", fontSize: "14px" }}>
+        <div
+          style={{
+            padding: "24px",
+            color: "red",
+            fontSize: "14px",
+          }}
+        >
           {error}
         </div>
       ) : filteredAccounts.length === 0 ? (
-        <div style={{ padding: "24px", color: "#6b7280", fontSize: "14px" }}>
+        <div
+          style={{
+            padding: "24px",
+            color: "#6b7280",
+            fontSize: "14px",
+          }}
+        >
           No accounts found.
         </div>
       ) : (
-        <div style={{ overflowX: "auto" }}>
-          <table style={{ width: "100%", borderCollapse: "collapse" }}>
+        <div
+          style={{
+            width: "100%",
+            overflowX: "auto",
+          }}
+        >
+          <table
+            style={{
+              width: "100%",
+              minWidth: "700px",
+              borderCollapse: "collapse",
+            }}
+          >
             <thead>
               <tr style={{ borderBottom: "1px solid #e5e7eb" }}>
                 <th style={headerCell}>Account Code</th>
@@ -158,7 +192,13 @@ export default function ChartOfAccounts() {
                       background: index % 2 === 0 ? "#fff" : "#fafafa",
                     }}
                   >
-                    <td style={{ ...bodyCell, fontWeight: 600, color: "#111827" }}>
+                    <td
+                      style={{
+                        ...bodyCell,
+                        fontWeight: 600,
+                        color: "#111827",
+                      }}
+                    >
                       {account.account_code}
                     </td>
 
@@ -174,6 +214,7 @@ export default function ChartOfAccounts() {
                           fontWeight: 600,
                           background: typeStyle.bg,
                           color: typeStyle.color,
+                          whiteSpace: "nowrap",
                         }}
                       >
                         {account.account_type}
@@ -181,7 +222,9 @@ export default function ChartOfAccounts() {
                     </td>
 
                     <td style={bodyCell}>
-                      {account.parent_account_id ? account.parent_account_id : "-"}
+                      {account.parent_account_id
+                        ? account.parent_account_id
+                        : "-"}
                     </td>
 
                     <td style={bodyCell}>
@@ -192,8 +235,13 @@ export default function ChartOfAccounts() {
                           borderRadius: "999px",
                           fontSize: "12px",
                           fontWeight: 600,
-                          background: account.is_active ? "#d1fae5" : "#f3f4f6",
-                          color: account.is_active ? "#065f46" : "#6b7280",
+                          background: account.is_active
+                            ? "#d1fae5"
+                            : "#f3f4f6",
+                          color: account.is_active
+                            ? "#065f46"
+                            : "#6b7280",
+                          whiteSpace: "nowrap",
                         }}
                       >
                         {account.is_active ? "Active" : "Inactive"}
@@ -217,10 +265,12 @@ const headerCell = {
   fontWeight: 600,
   color: "#6b7280",
   background: "#fff",
+  whiteSpace: "nowrap",
 };
 
 const bodyCell = {
   padding: "14px 16px",
   fontSize: "14px",
   color: "#374151",
+  whiteSpace: "nowrap",
 };

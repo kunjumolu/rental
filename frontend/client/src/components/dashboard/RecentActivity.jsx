@@ -9,42 +9,32 @@ const colorMap = {
 
 export default function RecentActivity({ activities = [] }) {
   return (
-    <div
-      style={{
-        background: "#fff",
-        border: "1px solid #e5e7eb",
-        borderRadius: "12px",
-        padding: "24px",
-        flex: 1,
-      }}
-    >
-      <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "20px" }}>
+    <div className="bg-white border border-gray-200 rounded-xl p-4 sm:p-6 flex-1">
+      <div className="flex items-center gap-2 mb-4">
         <Activity size={18} color="#6b7280" />
-        <h3 style={{ fontSize: "16px", fontWeight: 600, color: "#111827" }}>Recent Activity</h3>
+        <h3 className="text-sm sm:text-base font-semibold text-gray-900">
+          Recent Activity
+        </h3>
       </div>
-      <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+      <div className="flex flex-col gap-3.5">
         {activities.map((act, i) => (
-          <div key={i} style={{ display: "flex", gap: "10px", alignItems: "flex-start" }}>
+          <div key={i} className="flex gap-2.5 items-start">
             <span
-              style={{
-                width: "8px",
-                height: "8px",
-                borderRadius: "50%",
-                background: colorMap[act.type] || "#6b7280",
-                marginTop: "5px",
-                flexShrink: 0,
-              }}
+              className="w-2 h-2 rounded-full mt-[5px] shrink-0"
+              style={{ background: colorMap[act.type] || "#6b7280" }}
             />
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontSize: "13px", color: "#111827", fontWeight: 500, lineHeight: 1.4 }}>
+            <div className="flex-1 min-w-0">
+              <div className="text-xs sm:text-[13px] text-gray-900 font-medium leading-snug line-clamp-2">
                 {act.title}
               </div>
-              <div style={{ display: "flex", gap: "8px", marginTop: "3px", alignItems: "center" }}>
-                <span style={{ fontSize: "12px", color: "#9ca3af" }}>
-                  {act.date ? new Date(act.date).toLocaleDateString() : ""}
+              <div className="flex gap-2 mt-1 items-center flex-wrap">
+                <span className="text-xs text-gray-400">
+                  {act.date
+                    ? new Date(act.date).toLocaleDateString()
+                    : ""}
                 </span>
                 {act.amount !== null && act.amount !== undefined && (
-                  <span style={{ fontSize: "12px", fontWeight: 600, color: "#3b82f6" }}>
+                  <span className="text-xs font-semibold text-blue-500">
                     ₹{Number(act.amount).toLocaleString()}
                   </span>
                 )}

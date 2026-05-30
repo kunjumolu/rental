@@ -3,11 +3,15 @@ import BillRow from "./BillRow";
 
 export default function BillsTable({
   bills,
-  onStatusChange, onMarkPaid, onView, onEdit, onDelete,
+  onStatusChange,
+  onMarkPaid,
+  onView,
+  onEdit,
+  onDelete,
 }) {
   if (bills.length === 0) {
     return (
-      <div className="p-6 text-center text-[14px] text-[#6b7280]">
+      <div className="p-6 text-center text-[13px] sm:text-[14px] text-[#6b7280]">
         No bills found.
       </div>
     );
@@ -15,16 +19,16 @@ export default function BillsTable({
 
   return (
     <div className="overflow-x-auto">
-      <table className="w-full">
+      <table className="w-full min-w-[600px] sm:min-w-[800px] md:min-w-full">
         <thead>
           <tr className="border-b border-[#e5e7eb] bg-[#f9fafb]">
             <Th>Bill #</Th>
             <Th>Vendor</Th>
-            <Th>Bill Date</Th>
+            <Th className="hidden md:table-cell">Bill Date</Th>
             <Th>Due Date</Th>
             <Th align="right">Amount</Th>
             <Th align="right">Balance</Th>
-            <Th>Status</Th>
+            <Th className="hidden sm:table-cell">Status</Th>
             <Th>Actions</Th>
           </tr>
         </thead>
@@ -47,9 +51,11 @@ export default function BillsTable({
   );
 }
 
-function Th({ children, align = "left" }) {
+function Th({ children, align = "left", className: extra = "" }) {
   return (
-    <th className={`px-4 py-4 text-${align} text-[12px] font-semibold text-[#6b7280] uppercase tracking-wide`}>
+    <th
+      className={`px-3 sm:px-4 py-3 sm:py-4 text-${align} text-[11px] sm:text-[12px] font-semibold text-[#6b7280] uppercase tracking-wide ${extra}`}
+    >
       {children}
     </th>
   );

@@ -21,42 +21,42 @@ export default function InvoiceRow({ invoice, onView, onEdit, onDelete, onMarkPa
 
   return (
     <tr className="border-t border-[#e5e7eb]">
-      <td className="px-4 py-4 text-[14px] font-medium text-[#111827]">
+      <td className="px-3 lg:px-4 py-3 lg:py-4 text-[13px] lg:text-[14px] font-medium text-[#111827] whitespace-nowrap">
         {invoice.invoiceNumber}
       </td>
 
-      <td className="px-4 py-4">
-        <div className="text-[14px] font-medium text-[#111827]">
+      <td className="px-3 lg:px-4 py-3 lg:py-4">
+        <div className="text-[13px] lg:text-[14px] font-medium text-[#111827]">
           {invoice.customerName}
         </div>
-        <div className="text-[12px] text-[#6b7280]">
+        <div className="text-[11px] lg:text-[12px] text-[#6b7280] hidden xl:block">
           {invoice.customerEmail}
         </div>
       </td>
 
-      <td className="px-4 py-4 text-[14px] text-[#111827]">
+      <td className="px-3 lg:px-4 py-3 lg:py-4 text-[13px] lg:text-[14px] text-[#111827] whitespace-nowrap">
         {invoice.issueDate}
       </td>
 
-      <td className="px-4 py-4 text-[14px] text-[#111827]">
+      <td className="px-3 lg:px-4 py-3 lg:py-4 text-[13px] lg:text-[14px] text-[#111827] whitespace-nowrap">
         {invoice.dueDate}
       </td>
 
-      <td className="px-4 py-4 text-[14px] font-medium text-[#111827]">
+      <td className="px-3 lg:px-4 py-3 lg:py-4 text-[13px] lg:text-[14px] font-medium text-[#111827] whitespace-nowrap">
         {formatCurrency(invoice.total)}
       </td>
 
       <td
-        className={`px-4 py-4 text-[14px] font-medium ${
+        className={`px-3 lg:px-4 py-3 lg:py-4 text-[13px] lg:text-[14px] font-medium whitespace-nowrap ${
           Number(invoice.balance) > 0 ? "text-[#ef4444]" : "text-[#10b981]"
         }`}
       >
         {formatCurrency(invoice.balance)}
       </td>
 
-      <td className="px-4 py-4">
+      <td className="px-3 lg:px-4 py-3 lg:py-4">
         <span
-          className={`inline-flex px-3 py-1 rounded-full text-[12px] font-semibold ${
+          className={`inline-flex px-2 lg:px-3 py-1 rounded-full text-[11px] lg:text-[12px] font-semibold ${
             statusClasses[invoice.status] || "bg-gray-100 text-gray-700"
           }`}
         >
@@ -64,14 +64,15 @@ export default function InvoiceRow({ invoice, onView, onEdit, onDelete, onMarkPa
         </span>
       </td>
 
-      <td className="px-4 py-4">
-        <div className="flex items-center gap-3">
+      <td className="px-3 lg:px-4 py-3 lg:py-4">
+        <div className="flex items-center gap-2 lg:gap-3">
           <button
             onClick={() => onView(invoice)}
             className="text-[#111827] hover:text-[#2563eb] transition"
             title="View"
           >
-            <Eye size={18} />
+            <Eye size={16} className="lg:hidden" />
+            <Eye size={18} className="hidden lg:block" />
           </button>
 
           <button
@@ -79,7 +80,8 @@ export default function InvoiceRow({ invoice, onView, onEdit, onDelete, onMarkPa
             className="text-[#111827] hover:text-[#2563eb] transition"
             title="Edit"
           >
-            <Pencil size={18} />
+            <Pencil size={16} className="lg:hidden" />
+            <Pencil size={18} className="hidden lg:block" />
           </button>
 
           <button
@@ -87,7 +89,8 @@ export default function InvoiceRow({ invoice, onView, onEdit, onDelete, onMarkPa
             className="text-[#6B21A8] hover:text-[#581c87] transition"
             title="Print"
           >
-            <Printer size={18} />
+            <Printer size={16} className="lg:hidden" />
+            <Printer size={18} className="hidden lg:block" />
           </button>
 
           {invoice.balance > 0 && (
@@ -96,7 +99,8 @@ export default function InvoiceRow({ invoice, onView, onEdit, onDelete, onMarkPa
               className="text-[#10b981] hover:text-[#059669] transition"
               title="Mark as Paid"
             >
-              <CheckCircle size={18} />
+              <CheckCircle size={16} className="lg:hidden" />
+              <CheckCircle size={18} className="hidden lg:block" />
             </button>
           )}
 
@@ -105,7 +109,8 @@ export default function InvoiceRow({ invoice, onView, onEdit, onDelete, onMarkPa
             className="text-[#ef4444] hover:text-[#b91c1c] transition"
             title="Delete"
           >
-            <Trash2 size={18} />
+            <Trash2 size={16} className="lg:hidden" />
+            <Trash2 size={18} className="hidden lg:block" />
           </button>
         </div>
       </td>

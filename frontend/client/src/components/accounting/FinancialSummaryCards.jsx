@@ -35,6 +35,8 @@ export default function FinancialSummaryCards() {
   const periodRef = useRef(null);
   const sortRef = useRef(null);
 
+  const isMobile = window.innerWidth < 768;
+
   useEffect(() => {
     fetchSummary(period);
   }, [period]);
@@ -44,43 +46,30 @@ export default function FinancialSummaryCards() {
       if (periodRef.current && !periodRef.current.contains(e.target)) {
         setPeriodDropdownOpen(false);
       }
+
       if (sortRef.current && !sortRef.current.contains(e.target)) {
         setSortDropdownOpen(false);
       }
     };
+
     document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+
+    return () =>
+      document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   const fetchSummary = async (selectedPeriod) => {
     try {
       setLoading(true);
+
       const token = localStorage.getItem("token");
-
-      let dateFilter = "";
-      let expenseDateFilter = "";
-
-      if (selectedPeriod === "today") {
-        dateFilter = `AND DATE(issue_date) = CURRENT_DATE`;
-        expenseDateFilter = `AND DATE(date) = CURRENT_DATE`;
-      } else if (selectedPeriod === "week") {
-        dateFilter = `AND issue_date >= DATE_TRUNC('week', CURRENT_DATE)`;
-        expenseDateFilter = `AND date >= DATE_TRUNC('week', CURRENT_DATE)`;
-      } else if (selectedPeriod === "month") {
-        dateFilter = `AND issue_date >= DATE_TRUNC('month', CURRENT_DATE)`;
-        expenseDateFilter = `AND date >= DATE_TRUNC('month', CURRENT_DATE)`;
-      } else if (selectedPeriod === "quarter") {
-        dateFilter = `AND issue_date >= DATE_TRUNC('quarter', CURRENT_DATE)`;
-        expenseDateFilter = `AND date >= DATE_TRUNC('quarter', CURRENT_DATE)`;
-      } else if (selectedPeriod === "year") {
-        dateFilter = `AND issue_date >= DATE_TRUNC('year', CURRENT_DATE)`;
-        expenseDateFilter = `AND date >= DATE_TRUNC('year', CURRENT_DATE)`;
-      }
 
       const res = await fetch(
         `http://localhost:5000/api/accounting/summary?period=${selectedPeriod}`,
         {
-          headers: { Authorization: `Bearer ${token}` },
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         }
       );
 
@@ -88,6 +77,7 @@ export default function FinancialSummaryCards() {
 
       if (data.success && data.data) {
         const d = data.data;
+
         setSummary({
           totalAssets: Number(d.totalAssets || 0),
           liabilities: Number(d.liabilities || 0),
@@ -114,14 +104,35 @@ export default function FinancialSummaryCards() {
     PERIODS.find((p) => p.value === period)?.label || "All";
 
   const selectedSortLabel =
-    SORT_OPTIONS.find((s) => s.value === sortOrder)?.label || "Default Order";
+    SORT_OPTIONS.find((s) => s.value === sortOrder)?.label ||
+    "Default Order";
 
   const baseSummaryItems = [
-    { label: "Total Assets", value: summary.totalAssets, color: "#3b82f6" },
-    { label: "Liabilities", value: summary.liabilities, color: "#ef4444" },
-    { label: "Equity", value: summary.equity, color: "#3b82f6" },
-    { label: "Revenue", value: summary.revenue, color: "#10b981" },
-    { label: "Expenses", value: summary.expenses, color: "#ef4444" },
+    {
+      label: "Total Assets",
+      value: summary.totalAssets,
+      color: "#3b82f6",
+    },
+    {
+      label: "Liabilities",
+      value: summary.liabilities,
+      color: "#ef4444",
+    },
+    {
+      label: "Equity",
+      value: summary.equity,
+      color: "#3b82f6",
+    },
+    {
+      label: "Revenue",
+      value: summary.revenue,
+      color: "#10b981",
+    },
+    {
+      label: "Expenses",
+      value: summary.expenses,
+      color: "#ef4444",
+    },
     {
       label: "Net Income",
       value: summary.netIncome,
@@ -135,7 +146,10 @@ export default function FinancialSummaryCards() {
     return 0;
   });
 
-  const maxValue = Math.max(...summaryItems.map((s) => Math.abs(s.value)), 1);
+  const maxValue = Math.max(
+    ...summaryItems.map((s) => Math.abs(s.value)),
+    1
+  );
 
   return (
     <div style={{ marginBottom: "24px" }}>
@@ -143,18 +157,41 @@ export default function FinancialSummaryCards() {
       <div
         style={{
           display: "flex",
-          alignItems: "center",
+          flexDirection: isMobile ? "column" : "row",
+          alignItems: isMobile ? "stretch" : "center",
           justifyContent: "space-between",
+          gap: "14px",
           marginBottom: "16px",
         }}
       >
-        <h3 style={{ fontSize: "15px", fontWeight: 700, color: "#111827", margin: 0 }}>
+        <h3
+          style={{
+            fontSize: "15px",
+            fontWeight: 700,
+            color: "#111827",
+            margin: 0,
+          }}
+        >
           Financial Summary
         </h3>
 
-        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: isMobile ? "column" : "row",
+            alignItems: isMobile ? "stretch" : "center",
+            gap: "10px",
+            width: isMobile ? "100%" : "auto",
+          }}
+        >
           {/* Period Filter */}
-          <div ref={periodRef} style={{ position: "relative" }}>
+          <div
+            ref={periodRef}
+            style={{
+              position: "relative",
+              width: isMobile ? "100%" : "auto",
+            }}
+          >
             <button
               onClick={() => {
                 setPeriodDropdownOpen(!periodDropdownOpen);
@@ -163,8 +200,10 @@ export default function FinancialSummaryCards() {
               style={{
                 display: "flex",
                 alignItems: "center",
+                justifyContent: "space-between",
                 gap: "6px",
-                height: "38px",
+                height: "40px",
+                width: isMobile ? "100%" : "auto",
                 padding: "0 14px",
                 borderRadius: "10px",
                 border: "1px solid #d1d5db",
@@ -175,13 +214,32 @@ export default function FinancialSummaryCards() {
                 cursor: "pointer",
               }}
             >
-              <span style={{ color: "#9ca3af", fontWeight: 500 }}>Filter By:</span>
-              <span>{selectedPeriodLabel}</span>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "6px",
+                }}
+              >
+                <span
+                  style={{
+                    color: "#9ca3af",
+                    fontWeight: 500,
+                  }}
+                >
+                  Filter By:
+                </span>
+
+                <span>{selectedPeriodLabel}</span>
+              </div>
+
               <ChevronDown
                 size={15}
                 style={{
                   color: "#6b7280",
-                  transform: periodDropdownOpen ? "rotate(180deg)" : "rotate(0deg)",
+                  transform: periodDropdownOpen
+                    ? "rotate(180deg)"
+                    : "rotate(0deg)",
                   transition: "transform 0.2s",
                 }}
               />
@@ -192,9 +250,9 @@ export default function FinancialSummaryCards() {
                 style={{
                   position: "absolute",
                   right: 0,
-                  top: "44px",
+                  top: "46px",
                   zIndex: 30,
-                  width: "200px",
+                  width: isMobile ? "100%" : "200px",
                   borderRadius: "14px",
                   border: "1px solid #e5e7eb",
                   background: "#fff",
@@ -216,17 +274,12 @@ export default function FinancialSummaryCards() {
                       fontSize: "14px",
                       fontWeight: 500,
                       color: period === p.value ? "#fff" : "#374151",
-                      background: period === p.value ? "#2563eb" : "transparent",
+                      background:
+                        period === p.value
+                          ? "#2563eb"
+                          : "transparent",
                       border: "none",
                       cursor: "pointer",
-                    }}
-                    onMouseEnter={(e) => {
-                      if (period !== p.value)
-                        e.currentTarget.style.background = "#f3f4f6";
-                    }}
-                    onMouseLeave={(e) => {
-                      if (period !== p.value)
-                        e.currentTarget.style.background = "transparent";
                     }}
                   >
                     {p.label}
@@ -237,7 +290,13 @@ export default function FinancialSummaryCards() {
           </div>
 
           {/* Sort */}
-          <div ref={sortRef} style={{ position: "relative" }}>
+          <div
+            ref={sortRef}
+            style={{
+              position: "relative",
+              width: isMobile ? "100%" : "auto",
+            }}
+          >
             <button
               onClick={() => {
                 setSortDropdownOpen(!sortDropdownOpen);
@@ -246,8 +305,10 @@ export default function FinancialSummaryCards() {
               style={{
                 display: "flex",
                 alignItems: "center",
+                justifyContent: "space-between",
                 gap: "6px",
-                height: "38px",
+                height: "40px",
+                width: isMobile ? "100%" : "auto",
                 padding: "0 14px",
                 borderRadius: "10px",
                 border: "1px solid #d1d5db",
@@ -258,20 +319,49 @@ export default function FinancialSummaryCards() {
                 cursor: "pointer",
               }}
             >
-              {sortOrder === "asc" ? (
-                <ArrowUp size={14} style={{ color: "#6b7280" }} />
-              ) : sortOrder === "desc" ? (
-                <ArrowDown size={14} style={{ color: "#6b7280" }} />
-              ) : (
-                <ArrowDown size={14} style={{ color: "#9ca3af" }} />
-              )}
-              <span style={{ color: "#9ca3af", fontWeight: 500 }}>Sort:</span>
-              <span>{selectedSortLabel}</span>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "6px",
+                }}
+              >
+                {sortOrder === "asc" ? (
+                  <ArrowUp
+                    size={14}
+                    style={{ color: "#6b7280" }}
+                  />
+                ) : sortOrder === "desc" ? (
+                  <ArrowDown
+                    size={14}
+                    style={{ color: "#6b7280" }}
+                  />
+                ) : (
+                  <ArrowDown
+                    size={14}
+                    style={{ color: "#9ca3af" }}
+                  />
+                )}
+
+                <span
+                  style={{
+                    color: "#9ca3af",
+                    fontWeight: 500,
+                  }}
+                >
+                  Sort:
+                </span>
+
+                <span>{selectedSortLabel}</span>
+              </div>
+
               <ChevronDown
                 size={15}
                 style={{
                   color: "#6b7280",
-                  transform: sortDropdownOpen ? "rotate(180deg)" : "rotate(0deg)",
+                  transform: sortDropdownOpen
+                    ? "rotate(180deg)"
+                    : "rotate(0deg)",
                   transition: "transform 0.2s",
                 }}
               />
@@ -282,9 +372,9 @@ export default function FinancialSummaryCards() {
                 style={{
                   position: "absolute",
                   right: 0,
-                  top: "44px",
+                  top: "46px",
                   zIndex: 30,
-                  width: "200px",
+                  width: isMobile ? "100%" : "200px",
                   borderRadius: "14px",
                   border: "1px solid #e5e7eb",
                   background: "#fff",
@@ -306,17 +396,12 @@ export default function FinancialSummaryCards() {
                       fontSize: "14px",
                       fontWeight: 500,
                       color: sortOrder === s.value ? "#fff" : "#374151",
-                      background: sortOrder === s.value ? "#2563eb" : "transparent",
+                      background:
+                        sortOrder === s.value
+                          ? "#2563eb"
+                          : "transparent",
                       border: "none",
                       cursor: "pointer",
-                    }}
-                    onMouseEnter={(e) => {
-                      if (sortOrder !== s.value)
-                        e.currentTarget.style.background = "#f3f4f6";
-                    }}
-                    onMouseLeave={(e) => {
-                      if (sortOrder !== s.value)
-                        e.currentTarget.style.background = "transparent";
                     }}
                   >
                     {s.label}
@@ -332,7 +417,9 @@ export default function FinancialSummaryCards() {
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "repeat(6, 1fr)",
+          gridTemplateColumns: isMobile
+            ? "1fr"
+            : "repeat(auto-fit, minmax(180px, 1fr))",
           gap: "16px",
         }}
       >
@@ -347,8 +434,24 @@ export default function FinancialSummaryCards() {
                   padding: "20px 18px",
                 }}
               >
-                <div style={{ height: "12px", background: "#f3f4f6", borderRadius: "6px", marginBottom: "12px", width: "60%" }} />
-                <div style={{ height: "24px", background: "#f3f4f6", borderRadius: "6px", width: "80%" }} />
+                <div
+                  style={{
+                    height: "12px",
+                    background: "#f3f4f6",
+                    borderRadius: "6px",
+                    marginBottom: "12px",
+                    width: "60%",
+                  }}
+                />
+
+                <div
+                  style={{
+                    height: "24px",
+                    background: "#f3f4f6",
+                    borderRadius: "6px",
+                    width: "80%",
+                  }}
+                />
               </div>
             ))
           : summaryItems.map((item) => (
@@ -373,16 +476,36 @@ export default function FinancialSummaryCards() {
                 >
                   {item.label}
                 </div>
-                <div style={{ fontSize: "18px", fontWeight: 700, color: item.color }}>
+
+                <div
+                  style={{
+                    fontSize: isMobile ? "16px" : "18px",
+                    fontWeight: 700,
+                    color: item.color,
+                    wordBreak: "break-word",
+                  }}
+                >
                   {formatCurrency(item.value)}
                 </div>
-                <div style={{ marginTop: "10px", height: "4px", background: "#f3f4f6", borderRadius: "999px", overflow: "hidden" }}>
+
+                <div
+                  style={{
+                    marginTop: "10px",
+                    height: "4px",
+                    background: "#f3f4f6",
+                    borderRadius: "999px",
+                    overflow: "hidden",
+                  }}
+                >
                   <div
                     style={{
                       height: "100%",
                       background: item.color,
                       borderRadius: "999px",
-                      width: `${Math.min((Math.abs(item.value) / maxValue) * 100, 100)}%`,
+                      width: `${Math.min(
+                        (Math.abs(item.value) / maxValue) * 100,
+                        100
+                      )}%`,
                       transition: "width 0.5s ease",
                     }}
                   />
@@ -392,9 +515,23 @@ export default function FinancialSummaryCards() {
       </div>
 
       {!loading && (
-        <p style={{ marginTop: "10px", fontSize: "12px", color: "#9ca3af", textAlign: "right" }}>
+        <p
+          style={{
+            marginTop: "10px",
+            fontSize: "12px",
+            color: "#9ca3af",
+            textAlign: isMobile ? "left" : "right",
+          }}
+        >
           Showing:{" "}
-          <span style={{ fontWeight: 600, color: "#6b7280" }}>{selectedPeriodLabel}</span>
+          <span
+            style={{
+              fontWeight: 600,
+              color: "#6b7280",
+            }}
+          >
+            {selectedPeriodLabel}
+          </span>
         </p>
       )}
     </div>

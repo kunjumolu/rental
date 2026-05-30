@@ -36,19 +36,19 @@ export default function DeleteInventoryModal({ isOpen, onClose, item, onDeleted 
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
-      <div className="w-full max-w-[450px] rounded-[18px] bg-white shadow-2xl p-6">
-        <h2 className="text-[20px] font-bold text-[#111827]">Delete Inventory Item</h2>
-        <p className="mt-3 text-[14px] text-[#6b7280]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-3 sm:px-4">
+      <div className="w-full max-w-[450px] rounded-[14px] sm:rounded-[18px] bg-white shadow-2xl p-4 sm:p-6">
+        <h2 className="text-[17px] sm:text-[18px] md:text-[20px] font-bold text-[#111827]">Delete Inventory Item</h2>
+        <p className="mt-2 sm:mt-3 text-[13px] sm:text-[14px] text-[#6b7280]">
           Are you sure you want to delete <span className="font-semibold text-[#111827]">{item.name}</span>?
         </p>
 
-        {error && <p className="mt-4 text-[13px] text-red-600">{error}</p>}
+        {error && <p className="mt-3 sm:mt-4 text-[13px] text-red-600">{error}</p>}
 
-        <div className="mt-6 flex justify-end gap-3">
+        <div className="mt-5 sm:mt-6 flex flex-col-reverse sm:flex-row justify-end gap-2 sm:gap-3">
           <button
             onClick={onClose}
-            className="h-[42px] rounded-[12px] border border-[#d1d5db] px-5 text-[14px] font-medium"
+            className="h-[42px] rounded-[12px] border border-[#d1d5db] px-5 text-[14px] font-medium w-full sm:w-auto"
           >
             Cancel
           </button>
@@ -56,7 +56,7 @@ export default function DeleteInventoryModal({ isOpen, onClose, item, onDeleted 
           <button
             onClick={handleDelete}
             disabled={loading}
-            className="h-[42px] rounded-[12px] bg-red-600 px-5 text-[14px] font-semibold text-white"
+            className="h-[42px] rounded-[12px] bg-red-600 px-5 text-[14px] font-semibold text-white w-full sm:w-auto"
           >
             {loading ? "Deleting..." : "Delete"}
           </button>

@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Eye, Pencil, Trash2, CheckCircle, Printer } from "lucide-react";
 import InvoiceRow from "./InvoiceRow";
+import { formatCurrency } from "../../utils/currency";
+import { printInvoice } from "../../utils/printInvoice";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -46,20 +48,97 @@ export default function InvoicesTable({
     return pages;
   };
 
+  const statusClasses = {
+    paid: "bg-[#2563eb] text-white",
+    overdue: "bg-[#ef4444] text-white",
+    sent: "bg-[#f3f4f6] text-[#111827]",
+    draft: "bg-[#f3f4f6] text-[#111827]",
+  };
+
   return (
     <div className="w-full">
-      <div className="overflow-x-auto">
+
+      {/* Mobile Card Layout */}
+      <div className="block lg:hidden space-y-3">
+        {currentInvoices.map((invoice) => (
+          <div
+            key={invoice.id}
+            className="rounded-[12px] border border-[#e5e7eb] bg-white p-3 sm:p-4 space-y-3"
+          >
+            <div className="flex items-start justify-between gap-2">
+              <div className="min-w-0 flex-1">
+                <p className="text-[14px] font-medium text-[#111827] truncate">{invoice.invoiceNumber}</p>
+                <p className="text-[13px] text-[#6b7280] truncate">{invoice.customerName}</p>
+              </div>
+              <span
+                className={`inline-flex px-2 py-1 rounded-full text-[11px] font-semibold shrink-0 ${
+                  statusClasses[invoice.status] || "bg-gray-100 text-gray-700"
+                }`}
+              >
+                {invoice.status}
+              </span>
+            </div>
+
+            <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 text-[13px]">
+              <div>
+                <span className="text-[#6b7280]">Issue: </span>
+                <span className="text-[#111827]">{invoice.issueDate}</span>
+              </div>
+              <div>
+                <span className="text-[#6b7280]">Due: </span>
+                <span className="text-[#111827]">{invoice.dueDate}</span>
+              </div>
+              <div>
+                <span className="text-[#6b7280]">Total: </span>
+                <span className="text-[#111827] font-medium">{formatCurrency(invoice.total)}</span>
+              </div>
+              <div>
+                <span className="text-[#6b7280]">Balance: </span>
+                <span className={`font-medium ${Number(invoice.balance) > 0 ? "text-[#ef4444]" : "text-[#10b981]"}`}>
+                  {formatCurrency(invoice.balance)}
+                </span>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-3 pt-2 border-t border-[#f3f4f6]">
+              <button onClick={() => onView(invoice)} className="text-[#111827] hover:text-[#2563eb]" title="View">
+                <Eye size={16} />
+              </button>
+              <button onClick={() => onEdit(invoice)} className="text-[#111827] hover:text-[#2563eb]" title="Edit">
+                <Pencil size={16} />
+              </button>
+              <button
+                onClick={() => { if (onPrint) onPrint(invoice); else printInvoice(invoice); }}
+                className="text-[#6B21A8] hover:text-[#581c87]" title="Print"
+              >
+                <Printer size={16} />
+              </button>
+              {invoice.balance > 0 && (
+                <button onClick={() => onMarkPaid(invoice)} className="text-[#10b981] hover:text-[#059669]" title="Mark Paid">
+                  <CheckCircle size={16} />
+                </button>
+              )}
+              <button onClick={() => onDelete(invoice)} className="text-[#ef4444] hover:text-[#b91c1c]" title="Delete">
+                <Trash2 size={16} />
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Desktop Table Layout */}
+      <div className="hidden lg:block overflow-x-auto">
         <table className="w-full">
           <thead>
             <tr className="text-left border-b border-[#e5e7eb] bg-[#f9fafb]">
-              <th className="px-4 py-4 text-[13px] font-semibold text-[#6b7280]">Invoice #</th>
-              <th className="px-4 py-4 text-[13px] font-semibold text-[#6b7280]">Customer</th>
-              <th className="px-4 py-4 text-[13px] font-semibold text-[#6b7280]">Issue Date</th>
-              <th className="px-4 py-4 text-[13px] font-semibold text-[#6b7280]">Due Date</th>
-              <th className="px-4 py-4 text-[13px] font-semibold text-[#6b7280]">Total</th>
-              <th className="px-4 py-4 text-[13px] font-semibold text-[#6b7280]">Balance</th>
-              <th className="px-4 py-4 text-[13px] font-semibold text-[#6b7280]">Status</th>
-              <th className="px-4 py-4 text-[13px] font-semibold text-[#6b7280]">Actions</th>
+              <th className="px-3 xl:px-4 py-3 xl:py-4 text-[12px] xl:text-[13px] font-semibold text-[#6b7280]">Invoice #</th>
+              <th className="px-3 xl:px-4 py-3 xl:py-4 text-[12px] xl:text-[13px] font-semibold text-[#6b7280]">Customer</th>
+              <th className="px-3 xl:px-4 py-3 xl:py-4 text-[12px] xl:text-[13px] font-semibold text-[#6b7280]">Issue Date</th>
+              <th className="px-3 xl:px-4 py-3 xl:py-4 text-[12px] xl:text-[13px] font-semibold text-[#6b7280]">Due Date</th>
+              <th className="px-3 xl:px-4 py-3 xl:py-4 text-[12px] xl:text-[13px] font-semibold text-[#6b7280]">Total</th>
+              <th className="px-3 xl:px-4 py-3 xl:py-4 text-[12px] xl:text-[13px] font-semibold text-[#6b7280]">Balance</th>
+              <th className="px-3 xl:px-4 py-3 xl:py-4 text-[12px] xl:text-[13px] font-semibold text-[#6b7280]">Status</th>
+              <th className="px-3 xl:px-4 py-3 xl:py-4 text-[12px] xl:text-[13px] font-semibold text-[#6b7280]">Actions</th>
             </tr>
           </thead>
 
@@ -80,8 +159,8 @@ export default function InvoicesTable({
       </div>
 
       {totalPages > 1 && (
-        <div className="flex items-center justify-between px-4 py-4 border-t border-[#e5e7eb]">
-          <p className="text-[13px] text-[#6b7280]">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-3 sm:px-4 py-3 sm:py-4 border-t border-[#e5e7eb]">
+          <p className="text-[12px] sm:text-[13px] text-[#6b7280] order-2 sm:order-1">
             Showing{" "}
             <span className="font-semibold text-[#111827]">{startIndex + 1}</span>{" "}
             to{" "}
@@ -93,11 +172,11 @@ export default function InvoicesTable({
             results
           </p>
 
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1 order-1 sm:order-2">
             <button
               onClick={handlePrev}
               disabled={currentPage === 1}
-              className="h-8 w-8 rounded-[8px] border border-[#d1d5db] flex items-center justify-center text-[#6b7280] disabled:opacity-40 hover:bg-[#f3f4f6] transition"
+              className="h-7 w-7 sm:h-8 sm:w-8 rounded-[8px] border border-[#d1d5db] flex items-center justify-center text-[#6b7280] disabled:opacity-40 hover:bg-[#f3f4f6] transition"
             >
               <ChevronLeft size={16} />
             </button>
@@ -106,7 +185,7 @@ export default function InvoicesTable({
               page === "..." ? (
                 <span
                   key={`dots-${index}`}
-                  className="h-8 w-8 flex items-center justify-center text-[#6b7280] text-[13px]"
+                  className="h-7 w-7 sm:h-8 sm:w-8 flex items-center justify-center text-[#6b7280] text-[12px] sm:text-[13px]"
                 >
                   ...
                 </span>
@@ -114,7 +193,7 @@ export default function InvoicesTable({
                 <button
                   key={page}
                   onClick={() => handlePageClick(page)}
-                  className={`h-8 w-8 rounded-[8px] border text-[13px] font-medium transition ${
+                  className={`h-7 w-7 sm:h-8 sm:w-8 rounded-[8px] border text-[12px] sm:text-[13px] font-medium transition ${
                     currentPage === page
                       ? "bg-[#2563eb] text-white border-[#2563eb]"
                       : "border-[#d1d5db] text-[#374151] hover:bg-[#f3f4f6]"
@@ -128,7 +207,7 @@ export default function InvoicesTable({
             <button
               onClick={handleNext}
               disabled={currentPage === totalPages}
-              className="h-8 w-8 rounded-[8px] border border-[#d1d5db] flex items-center justify-center text-[#6b7280] disabled:opacity-40 hover:bg-[#f3f4f6] transition"
+              className="h-7 w-7 sm:h-8 sm:w-8 rounded-[8px] border border-[#d1d5db] flex items-center justify-center text-[#6b7280] disabled:opacity-40 hover:bg-[#f3f4f6] transition"
             >
               <ChevronRight size={16} />
             </button>

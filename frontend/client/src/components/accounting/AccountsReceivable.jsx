@@ -4,7 +4,6 @@ export default function AccountsReceivable() {
   const [invoices, setInvoices] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-
   const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
@@ -18,16 +17,22 @@ export default function AccountsReceivable() {
 
       const token = localStorage.getItem("token");
 
-      const res = await fetch("http://localhost:5000/api/invoices", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const res = await fetch(
+        "http://localhost:5000/api/invoices",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
       const data = await res.json();
 
       if (!res.ok || !data.success) {
-        throw new Error(data.message || "Failed to fetch receivable records");
+        throw new Error(
+          data.message ||
+            "Failed to fetch receivable records"
+        );
       }
 
       setInvoices(data.data || []);
@@ -42,19 +47,29 @@ export default function AccountsReceivable() {
   const filteredInvoices = useMemo(() => {
     return invoices.filter((invoice) => {
       const search = searchTerm.toLowerCase();
+
       return (
-        invoice.invoiceNumber?.toLowerCase().includes(search) ||
-        invoice.customerName?.toLowerCase().includes(search) ||
-        invoice.customerEmail?.toLowerCase().includes(search)
+        invoice.invoiceNumber
+          ?.toLowerCase()
+          .includes(search) ||
+        invoice.customerName
+          ?.toLowerCase()
+          .includes(search) ||
+        invoice.customerEmail
+          ?.toLowerCase()
+          .includes(search)
       );
     });
   }, [invoices, searchTerm]);
 
   const formatCurrency = (value) =>
-    `₹${Number(value || 0).toLocaleString("en-IN", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  })}`;
+    `₹${Number(value || 0).toLocaleString(
+      "en-IN",
+      {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      }
+    )}`;
 
   const statusStyles = {
     draft: {
@@ -76,44 +91,17 @@ export default function AccountsReceivable() {
   };
 
   return (
-    <div
-      style={{
-        background: "#fff",
-        border: "1px solid #e5e7eb",
-        borderRadius: "12px",
-        overflow: "hidden",
-      }}
-    >
+    <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden">
       {/* Header */}
-      <div
-        style={{
-          padding: "20px 24px",
-          borderBottom: "1px solid #e5e7eb",
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          gap: "16px",
-        }}
-      >
+      <div className="p-4 sm:p-6 border-b border-gray-200 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
         <div>
-          <h3
-            style={{
-              fontSize: "16px",
-              fontWeight: 600,
-              color: "#111827",
-              margin: 0,
-            }}
-          >
+          <h3 className="text-lg font-semibold text-gray-900">
             Accounts Receivable
           </h3>
-          <p
-            style={{
-              fontSize: "13px",
-              color: "#6b7280",
-              marginTop: "4px",
-            }}
-          >
-            Track customer invoices and outstanding receivables
+
+          <p className="text-sm text-gray-500 mt-1">
+            Track customer invoices and outstanding
+            receivables
           </p>
         </div>
 
@@ -121,108 +109,205 @@ export default function AccountsReceivable() {
           type="text"
           placeholder="Search invoices..."
           value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          style={{
-            height: "40px",
-            width: "240px",
-            border: "1px solid #d1d5db",
-            borderRadius: "10px",
-            padding: "0 14px",
-            fontSize: "14px",
-            outline: "none",
-          }}
+          onChange={(e) =>
+            setSearchTerm(e.target.value)
+          }
+          className="
+            h-11
+            w-full
+            lg:w-[260px]
+            border
+            border-gray-300
+            rounded-xl
+            px-4
+            text-sm
+            outline-none
+            focus:ring-2
+            focus:ring-purple-500
+          "
         />
       </div>
 
       {/* Body */}
       {loading ? (
-        <div style={{ padding: "24px", color: "#6b7280", fontSize: "14px" }}>
+        <div className="p-6 text-sm text-gray-500">
           Loading receivable records...
         </div>
       ) : error ? (
-        <div style={{ padding: "24px", color: "red", fontSize: "14px" }}>
+        <div className="p-6 text-sm text-red-500">
           {error}
         </div>
       ) : filteredInvoices.length === 0 ? (
-        <div style={{ padding: "24px", color: "#6b7280", fontSize: "14px" }}>
-          No receivable records found.
+        <div className="p-10 text-center">
+          <div className="text-5xl mb-3">
+            📄
+          </div>
+
+          <p className="font-semibold text-gray-700">
+            No receivable records found
+          </p>
+
+          <p className="text-sm text-gray-500 mt-1">
+            Customer invoices will appear here
+          </p>
         </div>
       ) : (
-        <div style={{ overflowX: "auto" }}>
-          <table style={{ width: "100%", borderCollapse: "collapse" }}>
+        <div className="overflow-x-auto">
+          <table className="min-w-[900px] w-full border-collapse">
             <thead>
-              <tr style={{ borderBottom: "1px solid #e5e7eb" }}>
-                <th style={headerCell}>Invoice #</th>
-                <th style={headerCell}>Customer</th>
-                <th style={headerCell}>Issue Date</th>
-                <th style={headerCell}>Due Date</th>
-                <th style={headerCell}>Total</th>
-                <th style={headerCell}>Paid</th>
-                <th style={headerCell}>Balance</th>
-                <th style={headerCell}>Status</th>
+              <tr className="border-b border-gray-200 bg-gray-50">
+                <th className={headerCell}>
+                  Invoice #
+                </th>
+
+                <th className={headerCell}>
+                  Customer
+                </th>
+
+                <th className={headerCell}>
+                  Issue Date
+                </th>
+
+                <th className={headerCell}>
+                  Due Date
+                </th>
+
+                <th
+                  className={`${headerCell} text-right`}
+                >
+                  Total
+                </th>
+
+                <th
+                  className={`${headerCell} text-right`}
+                >
+                  Paid
+                </th>
+
+                <th
+                  className={`${headerCell} text-right`}
+                >
+                  Balance
+                </th>
+
+                <th className={headerCell}>
+                  Status
+                </th>
               </tr>
             </thead>
 
             <tbody>
-              {filteredInvoices.map((invoice, index) => {
-                const style = statusStyles[invoice.status] || {
-                  bg: "#f3f4f6",
-                  color: "#374151",
-                };
+              {filteredInvoices.map(
+                (invoice, index) => {
+                  const style =
+                    statusStyles[
+                      invoice.status
+                    ] || {
+                      bg: "#f3f4f6",
+                      color: "#374151",
+                    };
 
-                const paidAmount =
-                  Number(invoice.total || 0) - Number(invoice.balance || 0);
+                  const paidAmount =
+                    Number(
+                      invoice.total || 0
+                    ) -
+                    Number(
+                      invoice.balance || 0
+                    );
 
-                return (
-                  <tr
-                    key={invoice.id}
-                    style={{
-                      borderBottom: "1px solid #f3f4f6",
-                      background: index % 2 === 0 ? "#fff" : "#fafafa",
-                    }}
-                  >
-                    <td style={bodyCell}>
-                      <span style={{ fontWeight: 600, color: "#111827" }}>
-                        {invoice.invoiceNumber}
-                      </span>
-                    </td>
+                  return (
+                    <tr
+                      key={invoice.id}
+                      className={
+                        index % 2 === 0
+                          ? "bg-white border-b border-gray-100"
+                          : "bg-gray-50 border-b border-gray-100"
+                      }
+                    >
+                      <td className="px-4 py-4 text-sm font-semibold text-gray-900">
+                        {
+                          invoice.invoiceNumber
+                        }
+                      </td>
 
-                    <td style={bodyCell}>
-                      <div style={{ fontWeight: 500, color: "#111827" }}>
-                        {invoice.customerName}
-                      </div>
-                      <div style={{ fontSize: "12px", color: "#9ca3af", marginTop: "2px" }}>
-                        {invoice.customerEmail}
-                      </div>
-                    </td>
+                      <td className="px-4 py-4 text-sm">
+                        <div className="font-medium text-gray-900">
+                          {
+                            invoice.customerName
+                          }
+                        </div>
 
-                    <td style={bodyCell}>{invoice.issueDate}</td>
-                    <td style={bodyCell}>{invoice.dueDate}</td>
-                    <td style={bodyCell}>{formatCurrency(invoice.total)}</td>
-                    <td style={bodyCell}>{formatCurrency(paidAmount)}</td>
-                    <td style={{ ...bodyCell, fontWeight: 600, color: Number(invoice.balance) > 0 ? "#ef4444" : "#10b981" }}>
-                      {formatCurrency(invoice.balance)}
-                    </td>
+                        <div className="text-xs text-gray-400 mt-1">
+                          {
+                            invoice.customerEmail
+                          }
+                        </div>
+                      </td>
 
-                    <td style={bodyCell}>
-                      <span
-                        style={{
-                          display: "inline-flex",
-                          padding: "4px 10px",
-                          borderRadius: "999px",
-                          fontSize: "12px",
-                          fontWeight: 600,
-                          background: style.bg,
-                          color: style.color,
-                          textTransform: "capitalize",
-                        }}
+                      <td className="px-4 py-4 text-sm text-gray-600">
+                        {
+                          invoice.issueDate
+                        }
+                      </td>
+
+                      <td className="px-4 py-4 text-sm text-gray-600">
+                        {invoice.dueDate}
+                      </td>
+
+                      <td className="px-4 py-4 text-sm font-medium text-right">
+                        {formatCurrency(
+                          invoice.total
+                        )}
+                      </td>
+
+                      <td className="px-4 py-4 text-sm font-medium text-green-600 text-right">
+                        {formatCurrency(
+                          paidAmount
+                        )}
+                      </td>
+
+                      <td
+                        className={`
+                          px-4 py-4 text-sm font-semibold text-right
+                          ${
+                            Number(
+                              invoice.balance
+                            ) > 0
+                              ? "text-red-500"
+                              : "text-green-600"
+                          }
+                        `}
                       >
-                        {invoice.status}
-                      </span>
-                    </td>
-                  </tr>
-                );
-              })}
+                        {formatCurrency(
+                          invoice.balance
+                        )}
+                      </td>
+
+                      <td className="px-4 py-4">
+                        <span
+                          style={{
+                            background:
+                              style.bg,
+                            color:
+                              style.color,
+                          }}
+                          className="
+                            inline-flex
+                            px-3
+                            py-1
+                            rounded-full
+                            text-xs
+                            font-semibold
+                            capitalize
+                          "
+                        >
+                          {invoice.status}
+                        </span>
+                      </td>
+                    </tr>
+                  );
+                }
+              )}
             </tbody>
           </table>
         </div>
@@ -231,17 +316,5 @@ export default function AccountsReceivable() {
   );
 }
 
-const headerCell = {
-  textAlign: "left",
-  padding: "14px 16px",
-  fontSize: "13px",
-  fontWeight: 600,
-  color: "#6b7280",
-  background: "#fff",
-};
-
-const bodyCell = {
-  padding: "14px 16px",
-  fontSize: "14px",
-  color: "#374151",
-};
+const headerCell =
+  "px-4 py-4 text-left text-xs font-bold uppercase tracking-wide text-gray-500";

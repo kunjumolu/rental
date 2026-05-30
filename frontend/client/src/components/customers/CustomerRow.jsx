@@ -23,41 +23,47 @@ export default function CustomerRow({ customer, onView, onEdit, onDelete }) {
 
   return (
     <tr className="border-b border-[#d9deea]">
-      <td className="px-4 py-3">
-        <div className="flex items-center gap-3">
-          <div className={`w-8 h-8 rounded-full ${getAvatarColor(customer.name)} flex items-center justify-center text-[12px] font-bold text-[#334155]`}>
+      <td className="px-3 sm:px-4 py-3">
+        <div className="flex items-center gap-2 sm:gap-3">
+          <div className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full ${getAvatarColor(customer.name)} flex items-center justify-center text-[10px] sm:text-xs font-bold text-[#334155] shrink-0`}>
             {getInitials(customer.name)}
           </div>
-          <span className="text-[13px] font-semibold text-[#1f2937]">
+          <span className="text-[12px] sm:text-[13px] font-semibold text-[#1f2937] truncate max-w-[120px] sm:max-w-none">
             {customer.name}
           </span>
         </div>
       </td>
-      <td className="px-4 py-3 text-[13px] text-[#6b7280]">{customer.phone || "-"}</td>
-      <td className="px-4 py-3 text-[13px] text-[#374151]">{customer.activeRentals ?? 0}</td>
-      <td className={`px-4 py-3 text-[13px] font-semibold ${Number(customer.balance) >= 10000 ? "text-[#dc2626]" : "text-[#1f2937]"}`}>
+      <td className="px-3 sm:px-4 py-3 text-[12px] sm:text-[13px] text-gray-500 hidden sm:table-cell">
+        {customer.phone || "-"}
+      </td>
+      <td className="px-3 sm:px-4 py-3 text-[12px] sm:text-[13px] text-gray-700">
+        {customer.activeRentals ?? 0}
+      </td>
+      <td className={`px-3 sm:px-4 py-3 text-[12px] sm:text-[13px] font-semibold ${
+        Number(customer.balance) >= 10000 ? "text-red-600" : "text-gray-900"
+      }`}>
         {formatCurrency(customer.balance)}
       </td>
-      <td className="px-4 py-3">
-        <span className={`inline-flex px-3 py-[3px] rounded-full text-[11px] font-medium ${
-          customer.status === "active" ? "bg-[#dbeafe] text-[#64748b]" : "bg-[#e5e7eb] text-[#4b5563]"
+      <td className="px-3 sm:px-4 py-3 hidden sm:table-cell">
+        <span className={`inline-flex px-2 sm:px-3 py-[2px] sm:py-[3px] rounded-full text-[10px] sm:text-[11px] font-medium ${
+          customer.status === "active" ? "bg-blue-100 text-gray-500" : "bg-gray-100 text-gray-600"
         }`}>
           {customer.status === "active" ? "Active" : "Inactive"}
         </span>
       </td>
-      <td className="px-4 py-3">
-        <div className="flex items-center gap-3">
-          <button onClick={() => onView(customer)} className="text-[#64748b] hover:text-[#0f4aa8]">
-            <Eye size={16} />
+      <td className="px-3 sm:px-4 py-3">
+        <div className="flex items-center gap-2 sm:gap-3">
+          <button onClick={() => onView(customer)} className="text-gray-500 hover:text-[#0f4aa8]">
+            <Eye size={15} className="sm:w-4 sm:h-4" />
           </button>
           {can("EDIT_CUSTOMER") && (
-            <button onClick={() => onEdit(customer)} className="text-[#64748b] hover:text-[#0f4aa8]">
-              <Pencil size={16} />
+            <button onClick={() => onEdit(customer)} className="text-gray-500 hover:text-[#0f4aa8]">
+              <Pencil size={15} className="sm:w-4 sm:h-4" />
             </button>
           )}
           {can("DELETE_CUSTOMER") && (
-            <button onClick={() => onDelete(customer)} className="text-[#64748b] hover:text-red-600">
-              <Trash2 size={16} />
+            <button onClick={() => onDelete(customer)} className="text-gray-500 hover:text-red-600">
+              <Trash2 size={15} className="sm:w-4 sm:h-4" />
             </button>
           )}
         </div>

@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
 import RentalsHeader from "../components/rentals/RentalsHeader";
 import RentalsStatsCards from "../components/rentals/RentalsStatsCards";
 import RentalsTable from "../components/rentals/RentalsTable";
@@ -8,6 +9,8 @@ import EditRentalModal from "../components/rentals/EditRentalModal";
 import DeleteRentalModal from "../components/rentals/DeleteRentalModal";
 
 export default function Rentals() {
+  const location = useLocation();
+
   const [rentals, setRentals] = useState([]);
   const [stats, setStats] = useState({
     all: 0,
@@ -16,10 +19,8 @@ export default function Rentals() {
     overdue: 0,
     returned: 0,
   });
-
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-
   const [searchTerm, setSearchTerm] = useState("");
   const [cardFilter, setCardFilter] = useState("all");
 
@@ -27,7 +28,6 @@ export default function Rentals() {
   const [isViewOpen, setIsViewOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
-
   const [selectedRental, setSelectedRental] = useState(null);
 
   useEffect(() => {
@@ -35,25 +35,34 @@ export default function Rentals() {
     fetchStats();
   }, []);
 
+  // Read navigation state (from AlertsWarnings or Topbar Create New)
+  useEffect(() => {
+    if (location.state?.activeFilter) {
+      setCardFilter(location.state.activeFilter);
+      setSearchTerm("");
+    }
+    if (location.state?.openAddModal) {
+      setIsNewOpen(true);
+    }
+    if (location.state) {
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state]);
+
   const fetchRentals = async () => {
     try {
       setLoading(true);
       setError("");
-
       const token = localStorage.getItem("token");
-
       const res = await fetch("http://localhost:5000/api/rentals", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-
       const data = await res.json();
-
       if (!res.ok || !data.success) {
         throw new Error(data.message || "Failed to fetch rentals");
       }
-
       setRentals(data.data || []);
     } catch (err) {
       console.error(err);
@@ -66,15 +75,12 @@ export default function Rentals() {
   const fetchStats = async () => {
     try {
       const token = localStorage.getItem("token");
-
       const res = await fetch("http://localhost:5000/api/rentals/stats", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-
       const data = await res.json();
-
       if (data.success) {
         setStats(data.data);
       }
@@ -110,7 +116,6 @@ export default function Rentals() {
 
   const filteredRentals = rentals.filter((rental) => {
     const search = searchTerm.toLowerCase();
-
     const matchesSearch =
       rental.orderNumber?.toLowerCase().includes(search) ||
       rental.customerName?.toLowerCase().includes(search);

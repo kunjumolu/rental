@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
+import { useLocation } from "react-router-dom";
 import InvoicesHeader from "../components/invoices/InvoicesHeader";
 import InvoiceStatsCards from "../components/invoices/InvoiceStatsCards";
 import InvoiceTabs from "../components/invoices/InvoiceTabs";
@@ -11,6 +12,8 @@ import GenerateFromRentals from "../components/invoices/GenerateFromRentals";
 import { printInvoice } from "../utils/printInvoice";
 
 export default function Invoices() {
+  const location = useLocation();
+
   const [invoices, setInvoices] = useState([]);
   const [stats, setStats] = useState({
     all: 0,
@@ -19,11 +22,9 @@ export default function Invoices() {
     paid: 0,
     overdue: 0,
   });
-
   const [searchTerm, setSearchTerm] = useState("");
   const [activeTab, setActiveTab] = useState("Invoices");
   const [cardFilter, setCardFilter] = useState("all");
-
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -31,7 +32,6 @@ export default function Invoices() {
   const [isViewOpen, setIsViewOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
-
   const [selectedInvoice, setSelectedInvoice] = useState(null);
 
   useEffect(() => {
@@ -39,25 +39,35 @@ export default function Invoices() {
     fetchInvoiceStats();
   }, []);
 
+  // Read navigation state (from AlertsWarnings or Topbar Create New)
+  useEffect(() => {
+    if (location.state?.activeFilter) {
+      setCardFilter(location.state.activeFilter);
+      setActiveTab("Invoices");
+      setSearchTerm("");
+    }
+    if (location.state?.openAddModal) {
+      setIsNewOpen(true);
+    }
+    if (location.state) {
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state]);
+
   const fetchInvoices = async () => {
     try {
       setLoading(true);
       setError("");
-
       const token = localStorage.getItem("token");
-
       const res = await fetch("http://localhost:5000/api/invoices", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-
       const data = await res.json();
-
       if (!res.ok || !data.success) {
         throw new Error(data.message || "Failed to fetch invoices");
       }
-
       setInvoices(data.data || []);
     } catch (err) {
       console.error(err);
@@ -70,15 +80,12 @@ export default function Invoices() {
   const fetchInvoiceStats = async () => {
     try {
       const token = localStorage.getItem("token");
-
       const res = await fetch("http://localhost:5000/api/invoices/stats", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-
       const data = await res.json();
-
       if (data.success) {
         setStats(data.data);
       }
@@ -86,36 +93,33 @@ export default function Invoices() {
       console.error(err);
     }
   };
-const fetchInvoiceById = async (id) => {
-  try {
-    const token = localStorage.getItem("token");
 
-    const res = await fetch(`http://localhost:5000/api/invoices/${id}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-
-    const data = await res.json();
-
-    if (!res.ok || !data.success) {
-      throw new Error(data.message || "Failed to fetch invoice");
+  const fetchInvoiceById = async (id) => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`http://localhost:5000/api/invoices/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.message || "Failed to fetch invoice");
+      }
+      return data.data;
+    } catch (err) {
+      console.error(err);
+      return null;
     }
-
-    return data.data;
-  } catch (err) {
-    console.error(err);
-    return null;
-  }
-};
+  };
 
   const handleView = async (invoice) => {
-  const fullInvoice = await fetchInvoiceById(invoice.id);
-  if (fullInvoice) {
-    setSelectedInvoice(fullInvoice);
-    setIsViewOpen(true);
-  }
-};
+    const fullInvoice = await fetchInvoiceById(invoice.id);
+    if (fullInvoice) {
+      setSelectedInvoice(fullInvoice);
+      setIsViewOpen(true);
+    }
+  };
 
   const handleEdit = async (invoice) => {
     const fullInvoice = await fetchInvoiceById(invoice.id);
@@ -129,34 +133,27 @@ const fetchInvoiceById = async (id) => {
     setSelectedInvoice(invoice);
     setIsDeleteOpen(true);
   };
-const handlePrint = async (invoice) => {
-  const fullInvoice = await fetchInvoiceById(invoice.id);
-  if (fullInvoice) {
-    printInvoice(fullInvoice);
-  }
-};
 
-
-
-
+  const handlePrint = async (invoice) => {
+    const fullInvoice = await fetchInvoiceById(invoice.id);
+    if (fullInvoice) {
+      printInvoice(fullInvoice);
+    }
+  };
 
   const handleMarkPaid = async (invoice) => {
     try {
       const token = localStorage.getItem("token");
-
       const res = await fetch(`http://localhost:5000/api/invoices/${invoice.id}/pay`, {
         method: "PATCH",
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-
       const data = await res.json();
-
       if (!res.ok || !data.success) {
         throw new Error(data.message || "Failed to mark invoice paid");
       }
-
       fetchInvoices();
       fetchInvoiceStats();
     } catch (err) {
@@ -216,14 +213,14 @@ const handlePrint = async (invoice) => {
               No {cardFilter !== "all" ? cardFilter : ""} invoices found.
             </div>
           ) : (
-  <InvoicesTable
-  invoices={filteredInvoices}
-  onView={handleView}
-  onEdit={handleEdit}
-  onDelete={handleDelete}
-  onMarkPaid={handleMarkPaid}
-  onPrint={handlePrint}
-/>
+            <InvoicesTable
+              invoices={filteredInvoices}
+              onView={handleView}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
+              onMarkPaid={handleMarkPaid}
+              onPrint={handlePrint}
+            />
           )}
         </div>
       ) : (

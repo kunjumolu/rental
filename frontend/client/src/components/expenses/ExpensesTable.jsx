@@ -24,92 +24,181 @@ export default function ExpensesTable({ expenses, onView, onEdit, onDelete }) {
   };
 
   return (
-    <div className="overflow-x-auto">
-      <table className="w-full">
-        <thead>
-          <tr className="border-b border-[#e5e7eb] bg-[#f9fafb]">
-            <th className="px-4 py-4 text-left text-[12px] font-semibold text-[#6b7280] uppercase tracking-wide">Date</th>
-            <th className="px-4 py-4 text-left text-[12px] font-semibold text-[#6b7280] uppercase tracking-wide">Expense Account</th>
-            <th className="px-4 py-4 text-left text-[12px] font-semibold text-[#6b7280] uppercase tracking-wide">Reference#</th>
-            <th className="px-4 py-4 text-left text-[12px] font-semibold text-[#6b7280] uppercase tracking-wide">Vendor Name</th>
-            <th className="px-4 py-4 text-left text-[12px] font-semibold text-[#6b7280] uppercase tracking-wide">Paid Through</th>
-            <th className="px-4 py-4 text-left text-[12px] font-semibold text-[#6b7280] uppercase tracking-wide">Customer Name</th>
-            <th className="px-4 py-4 text-left text-[12px] font-semibold text-[#6b7280] uppercase tracking-wide">Status</th>
-            <th className="px-4 py-4 text-right text-[12px] font-semibold text-[#6b7280] uppercase tracking-wide">Amount</th>
-            <th className="px-4 py-4 text-left text-[12px] font-semibold text-[#6b7280] uppercase tracking-wide">Actions</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          {expenses.map((expense, index) => (
-            <tr
-              key={expense.id}
-              className={`border-b border-[#f3f4f6] ${
-                index % 2 === 0 ? "bg-white" : "bg-[#fafafa]"
-              } hover:bg-[#f9fafb] transition`}
-            >
-              <td className="px-4 py-4 text-[14px] text-[#374151]">
-                {formatDate(expense.date)}
-              </td>
-              <td
-                className="px-4 py-4 text-[14px] text-[#2563eb] font-medium cursor-pointer hover:underline"
-                onClick={() => onView(expense)}
-              >
-                {expense.expense_account || "-"}
-              </td>
-              <td className="px-4 py-4 text-[14px] text-[#374151]">
-                {expense.reference_number || "-"}
-              </td>
-              <td className="px-4 py-4 text-[14px] text-[#374151]">
-                {expense.vendor_name || "-"}
-              </td>
-              <td className="px-4 py-4 text-[14px] text-[#374151]">
-                {expense.paid_through || "-"}
-              </td>
-              <td className="px-4 py-4 text-[14px] text-[#374151]">
-                {expense.customer_name || "-"}
-              </td>
-              <td className="px-4 py-4">
-                <span
-                  className={`text-[13px] font-semibold uppercase ${
-                    statusColors[expense.status] || "text-[#6b7280]"
-                  }`}
+    <>
+      {/* Mobile Card Layout */}
+      <div className="block lg:hidden space-y-3">
+        {expenses.map((expense) => (
+          <div
+            key={expense.id}
+            className="rounded-[12px] border border-[#e5e7eb] bg-white p-4 space-y-3"
+          >
+            <div className="flex items-start justify-between">
+              <div className="flex-1 min-w-0">
+                <p
+                  className="text-[14px] sm:text-[15px] text-[#2563eb] font-medium cursor-pointer hover:underline truncate"
+                  onClick={() => onView(expense)}
                 >
-                  {expense.status || "non-billable"}
-                </span>
-              </td>
-              <td className="px-4 py-4 text-[14px] font-semibold text-[#111827] text-right">
+                  {expense.expense_account || "-"}
+                </p>
+                <p className="text-[12px] sm:text-[13px] text-[#6b7280] mt-0.5">
+                  {formatDate(expense.date)}
+                </p>
+              </div>
+              <p className="text-[15px] sm:text-[16px] font-semibold text-[#111827] ml-3 shrink-0">
                 {formatCurrency(expense.amount)}
-              </td>
-              <td className="px-4 py-4">
-                <div className="flex items-center gap-3">
-                  <button
-                    onClick={() => onView(expense)}
-                    className="text-[#111827] hover:text-[#6B21A8] transition"
-                    title="View"
-                  >
-                    <Eye size={16} />
-                  </button>
-                  <button
-                    onClick={() => onEdit(expense)}
-                    className="text-[#111827] hover:text-[#6B21A8] transition"
-                    title="Edit"
-                  >
-                    <Pencil size={16} />
-                  </button>
-                  <button
-                    onClick={() => onDelete(expense.id)}
-                    className="text-[#ef4444] hover:text-[#b91c1c] transition"
-                    title="Delete"
-                  >
-                    <Trash2 size={16} />
-                  </button>
+              </p>
+            </div>
+
+            <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-[13px]">
+              {expense.vendor_name && (
+                <div>
+                  <span className="text-[#6b7280]">Vendor: </span>
+                  <span className="text-[#374151] font-medium">{expense.vendor_name}</span>
                 </div>
-              </td>
+              )}
+              {expense.paid_through && (
+                <div>
+                  <span className="text-[#6b7280]">Paid: </span>
+                  <span className="text-[#374151] font-medium">{expense.paid_through}</span>
+                </div>
+              )}
+              {expense.reference_number && (
+                <div>
+                  <span className="text-[#6b7280]">Ref: </span>
+                  <span className="text-[#374151] font-medium">{expense.reference_number}</span>
+                </div>
+              )}
+              {expense.customer_name && (
+                <div>
+                  <span className="text-[#6b7280]">Customer: </span>
+                  <span className="text-[#374151] font-medium">{expense.customer_name}</span>
+                </div>
+              )}
+            </div>
+
+            <div className="flex items-center justify-between pt-2 border-t border-[#f3f4f6]">
+              <span
+                className={`text-[12px] sm:text-[13px] font-semibold uppercase ${
+                  statusColors[expense.status] || "text-[#6b7280]"
+                }`}
+              >
+                {expense.status || "non-billable"}
+              </span>
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => onView(expense)}
+                  className="text-[#111827] hover:text-[#6B21A8] transition"
+                  title="View"
+                >
+                  <Eye size={16} />
+                </button>
+                <button
+                  onClick={() => onEdit(expense)}
+                  className="text-[#111827] hover:text-[#6B21A8] transition"
+                  title="Edit"
+                >
+                  <Pencil size={16} />
+                </button>
+                <button
+                  onClick={() => onDelete(expense.id)}
+                  className="text-[#ef4444] hover:text-[#b91c1c] transition"
+                  title="Delete"
+                >
+                  <Trash2 size={16} />
+                </button>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Desktop Table Layout */}
+      <div className="hidden lg:block overflow-x-auto">
+        <table className="w-full">
+          <thead>
+            <tr className="border-b border-[#e5e7eb] bg-[#f9fafb]">
+              <th className="px-3 xl:px-4 py-4 text-left text-[12px] font-semibold text-[#6b7280] uppercase tracking-wide">Date</th>
+              <th className="px-3 xl:px-4 py-4 text-left text-[12px] font-semibold text-[#6b7280] uppercase tracking-wide">Expense Account</th>
+              <th className="px-3 xl:px-4 py-4 text-left text-[12px] font-semibold text-[#6b7280] uppercase tracking-wide">Reference#</th>
+              <th className="px-3 xl:px-4 py-4 text-left text-[12px] font-semibold text-[#6b7280] uppercase tracking-wide">Vendor Name</th>
+              <th className="px-3 xl:px-4 py-4 text-left text-[12px] font-semibold text-[#6b7280] uppercase tracking-wide">Paid Through</th>
+              <th className="px-3 xl:px-4 py-4 text-left text-[12px] font-semibold text-[#6b7280] uppercase tracking-wide hidden xl:table-cell">Customer Name</th>
+              <th className="px-3 xl:px-4 py-4 text-left text-[12px] font-semibold text-[#6b7280] uppercase tracking-wide">Status</th>
+              <th className="px-3 xl:px-4 py-4 text-right text-[12px] font-semibold text-[#6b7280] uppercase tracking-wide">Amount</th>
+              <th className="px-3 xl:px-4 py-4 text-left text-[12px] font-semibold text-[#6b7280] uppercase tracking-wide">Actions</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+          </thead>
+          <tbody>
+            {expenses.map((expense, index) => (
+              <tr
+                key={expense.id}
+                className={`border-b border-[#f3f4f6] ${
+                  index % 2 === 0 ? "bg-white" : "bg-[#fafafa]"
+                } hover:bg-[#f9fafb] transition`}
+              >
+                <td className="px-3 xl:px-4 py-4 text-[13px] lg:text-[14px] text-[#374151] whitespace-nowrap">
+                  {formatDate(expense.date)}
+                </td>
+                <td
+                  className="px-3 xl:px-4 py-4 text-[13px] lg:text-[14px] text-[#2563eb] font-medium cursor-pointer hover:underline"
+                  onClick={() => onView(expense)}
+                >
+                  {expense.expense_account || "-"}
+                </td>
+                <td className="px-3 xl:px-4 py-4 text-[13px] lg:text-[14px] text-[#374151]">
+                  {expense.reference_number || "-"}
+                </td>
+                <td className="px-3 xl:px-4 py-4 text-[13px] lg:text-[14px] text-[#374151]">
+                  {expense.vendor_name || "-"}
+                </td>
+                <td className="px-3 xl:px-4 py-4 text-[13px] lg:text-[14px] text-[#374151]">
+                  {expense.paid_through || "-"}
+                </td>
+                <td className="px-3 xl:px-4 py-4 text-[13px] lg:text-[14px] text-[#374151] hidden xl:table-cell">
+                  {expense.customer_name || "-"}
+                </td>
+                <td className="px-3 xl:px-4 py-4">
+                  <span
+                    className={`text-[12px] lg:text-[13px] font-semibold uppercase ${
+                      statusColors[expense.status] || "text-[#6b7280]"
+                    }`}
+                  >
+                    {expense.status || "non-billable"}
+                  </span>
+                </td>
+                <td className="px-3 xl:px-4 py-4 text-[13px] lg:text-[14px] font-semibold text-[#111827] text-right whitespace-nowrap">
+                  {formatCurrency(expense.amount)}
+                </td>
+                <td className="px-3 xl:px-4 py-4">
+                  <div className="flex items-center gap-2 xl:gap-3">
+                    <button
+                      onClick={() => onView(expense)}
+                      className="text-[#111827] hover:text-[#6B21A8] transition"
+                      title="View"
+                    >
+                      <Eye size={16} />
+                    </button>
+                    <button
+                      onClick={() => onEdit(expense)}
+                      className="text-[#111827] hover:text-[#6B21A8] transition"
+                      title="Edit"
+                    >
+                      <Pencil size={16} />
+                    </button>
+                    <button
+                      onClick={() => onDelete(expense.id)}
+                      className="text-[#ef4444] hover:text-[#b91c1c] transition"
+                      title="Delete"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </>
   );
 }

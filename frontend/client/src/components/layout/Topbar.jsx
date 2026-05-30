@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import {
-  Bell, HelpCircle, Plus, Menu, Box, Key, Users, FileText,
+  Bell, Plus, Menu, Box, Key, Users, FileText,
   User, Settings, LogOut, ChevronRight, Package, AlertTriangle,
   CreditCard, Clock, CheckCircle, X
 } from 'lucide-react';
@@ -30,6 +30,77 @@ const getIconComponent = (iconType) => {
     case 'package': return Package;
     default: return Bell;
   }
+};
+
+// Map notification types to routes + filters
+const getNotificationNavConfig = (notification) => {
+  const type = (notification.type || "").toLowerCase();
+  const title = (notification.title || "").toLowerCase();
+  const description = (notification.description || "").toLowerCase();
+
+  // Rental related
+  if (type.includes("rental") || title.includes("rental")) {
+    if (type.includes("overdue") || title.includes("overdue") || description.includes("overdue")) {
+      return { route: "/rentals", state: { activeFilter: "overdue" } };
+    }
+    if (type.includes("pending") || title.includes("pending")) {
+      return { route: "/rentals", state: { activeFilter: "pending" } };
+    }
+    if (type.includes("active") || title.includes("active")) {
+      return { route: "/rentals", state: { activeFilter: "active" } };
+    }
+    if (type.includes("return") || title.includes("return")) {
+      return { route: "/rentals", state: { activeFilter: "returned" } };
+    }
+    return { route: "/rentals", state: {} };
+  }
+
+  // Invoice related
+  if (type.includes("invoice") || title.includes("invoice")) {
+    if (type.includes("overdue") || title.includes("overdue") || type.includes("unpaid") || title.includes("unpaid")) {
+      return { route: "/invoices & billing", state: { activeFilter: "overdue" } };
+    }
+    if (type.includes("paid") || title.includes("paid")) {
+      return { route: "/invoices & billing", state: { activeFilter: "paid" } };
+    }
+    if (type.includes("draft") || title.includes("draft")) {
+      return { route: "/invoices & billing", state: { activeFilter: "draft" } };
+    }
+    return { route: "/invoices & billing", state: {} };
+  }
+
+  // Inventory / Stock related
+  if (type.includes("inventory") || type.includes("stock") || title.includes("stock") || title.includes("inventory") || type.includes("item")) {
+    if (type.includes("low") || title.includes("low") || type.includes("out") || title.includes("out")) {
+      return { route: "/inventory", state: { activeFilter: "low_stock" } };
+    }
+    return { route: "/inventory", state: {} };
+  }
+
+  // Expense related
+  if (type.includes("expense") || type.includes("bill") || title.includes("expense") || title.includes("bill")) {
+    if (type.includes("billable") || title.includes("billable")) {
+      return { route: "/expenses", state: { activeFilter: "non-billable" } };
+    }
+    return { route: "/expenses", state: {} };
+  }
+
+  // Customer related
+  if (type.includes("customer") || title.includes("customer")) {
+    return { route: "/customers", state: {} };
+  }
+
+  // Payment related
+  if (type.includes("payment") || title.includes("payment")) {
+    return { route: "/invoices & billing", state: { activeFilter: "paid" } };
+  }
+
+  // Fallback: use notification.link if available
+  if (notification.link) {
+    return { route: notification.link, state: {} };
+  }
+
+  return null;
 };
 
 const Topbar = ({ onMenuClick }) => {
@@ -137,17 +208,23 @@ const Topbar = ({ onMenuClick }) => {
 
   const handleNotificationClick = (notification) => {
     markOneRead(notification.id);
-    if (notification.link) {
+
+    const navConfig = getNotificationNavConfig(notification);
+
+    if (navConfig) {
+      navigate(navConfig.route, { state: navConfig.state });
+      notif.setOpen(false);
+    } else if (notification.link) {
       navigate(notification.link);
       notif.setOpen(false);
     }
   };
 
   const createOptions = [
-    { icon: Box,      label: 'New Item',     color: 'text-blue-600',   path: '/inventory'  },
-    { icon: Key,      label: 'New Rental',   color: 'text-green-600',  path: '/rentals'    },
-    { icon: Users,    label: 'New Customer', color: 'text-purple-600', path: '/customers'  },
-    { icon: FileText, label: 'New Invoice',  color: 'text-orange-600', path: '/invoices & billing'   },
+    { icon: Box,      label: 'New Item',     color: 'text-blue-600',   path: '/inventory',          state: { openAddModal: true } },
+    { icon: Key,      label: 'New Rental',   color: 'text-green-600',  path: '/rentals',            state: { openAddModal: true } },
+    { icon: Users,    label: 'New Customer', color: 'text-purple-600', path: '/customers',          state: { openAddModal: true } },
+    { icon: FileText, label: 'New Invoice',  color: 'text-orange-600', path: '/invoices & billing', state: { openAddModal: true } },
   ];
 
   const userMenuItems = [
@@ -176,9 +253,6 @@ const Topbar = ({ onMenuClick }) => {
 
       {/* Right */}
       <div className="flex items-center gap-2 md:gap-5">
-        <span className="text-sm font-medium text-slate-500 cursor-pointer hidden md:block hover:text-blue-600 transition-colors">
-          Support
-        </span>
 
         {/* Create New */}
         <div className="relative" ref={create.ref}>
@@ -204,7 +278,10 @@ const Topbar = ({ onMenuClick }) => {
               {createOptions.map((option) => (
                 <button
                   key={option.label}
-                  onClick={() => { navigate(option.path); create.setOpen(false); }}
+                  onClick={() => {
+                    navigate(option.path, { state: option.state });
+                    create.setOpen(false);
+                  }}
                   className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-600 hover:bg-slate-50 hover:text-[#0047AB] transition-colors group"
                 >
                   <div className="p-1.5 rounded-md bg-slate-50 group-hover:bg-white transition-colors">
@@ -274,13 +351,16 @@ const Topbar = ({ onMenuClick }) => {
                   ) : (
                     notifications.map((n) => {
                       const Icon = getIconComponent(n.iconType);
+                      const navConfig = getNotificationNavConfig(n);
+                      const isClickable = !!(navConfig || n.link);
+
                       return (
                         <div
                           key={n.id}
                           onClick={() => handleNotificationClick(n)}
-                          className={`flex gap-3 px-4 py-3 cursor-pointer hover:bg-slate-50 transition-colors group relative ${
-                            !n.read ? 'bg-blue-50/40' : ''
-                          }`}
+                          className={`flex gap-3 px-4 py-3 hover:bg-slate-50 transition-colors group relative ${
+                            isClickable ? 'cursor-pointer' : 'cursor-default'
+                          } ${!n.read ? 'bg-blue-50/40' : ''}`}
                         >
                           {!n.read && (
                             <span className="absolute left-2 top-1/2 -translate-y-1/2 w-1.5 h-1.5 bg-blue-500 rounded-full" />
@@ -297,7 +377,14 @@ const Topbar = ({ onMenuClick }) => {
                             <p className="text-xs text-slate-500 mt-0.5 leading-snug line-clamp-2">
                               {n.description}
                             </p>
-                            <p className="text-[11px] text-slate-400 mt-1">{n.date}</p>
+                            <div className="flex items-center gap-2 mt-1">
+                              <p className="text-[11px] text-slate-400">{n.date}</p>
+                              {isClickable && (
+                                <span className="text-[10px] font-semibold text-blue-500 opacity-0 group-hover:opacity-100 transition-opacity">
+                                  View →
+                                </span>
+                              )}
+                            </div>
                           </div>
 
                           <button
@@ -328,12 +415,6 @@ const Topbar = ({ onMenuClick }) => {
               </div>
             )}
           </div>
-
-          {/* Help */}
-          <HelpCircle
-            size={20}
-            className="text-slate-500 hidden sm:block cursor-pointer hover:text-blue-600 transition-colors"
-          />
 
           {/* User Avatar / Profile Dropdown */}
           <div className="relative" ref={user.ref}>

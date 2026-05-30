@@ -111,22 +111,22 @@ export default function AddInventoryModal({ isOpen, onClose, onCreated }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4 py-6">
-      <div className="w-full max-w-[820px] max-h-[92vh] overflow-hidden rounded-[20px] bg-white shadow-2xl flex flex-col">
-        <div className="flex items-center justify-between px-8 py-6 border-b border-[#e5e7eb]">
-          <h2 className="text-[22px] font-bold text-[#111827]">Add Inventory Item</h2>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-2 sm:px-4 py-4 sm:py-6">
+      <div className="w-full max-w-[820px] max-h-[92vh] overflow-hidden rounded-[14px] sm:rounded-[18px] md:rounded-[20px] bg-white shadow-2xl flex flex-col">
+        <div className="flex items-center justify-between px-4 sm:px-6 md:px-8 py-4 sm:py-5 md:py-6 border-b border-[#e5e7eb]">
+          <h2 className="text-[17px] sm:text-[19px] md:text-[22px] font-bold text-[#111827]">Add Inventory Item</h2>
           <button
             onClick={onClose}
-            className="h-10 w-10 rounded-full flex items-center justify-center hover:bg-gray-100 text-[#6b7280]"
+            className="h-9 w-9 sm:h-10 sm:w-10 rounded-full flex items-center justify-center hover:bg-gray-100 text-[#6b7280]"
           >
             <X size={22} />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto px-8 py-6">
+        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto px-4 sm:px-6 md:px-8 py-4 sm:py-6">
 
           {/* Basic Info */}
-          <div className="grid grid-cols-2 gap-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
             <Field label="SKU *" name="sku" value={formData.sku} onChange={handleChange} placeholder="ITEM-001" />
             <Field label="Name *" name="name" value={formData.name} onChange={handleChange} placeholder="Item name" />
 
@@ -158,38 +158,38 @@ export default function AddInventoryModal({ isOpen, onClose, onCreated }) {
             <Field label="Location" name="location" value={formData.location} onChange={handleChange} placeholder="Warehouse A" />
           </div>
 
-          <div className="mt-5">
-            <label className="mb-2 block text-[14px] font-medium text-[#111827]">Description</label>
+          <div className="mt-4 sm:mt-5">
+            <label className="mb-1.5 sm:mb-2 block text-[13px] sm:text-[14px] font-medium text-[#111827]">Description</label>
             <textarea
               name="description"
               value={formData.description}
               onChange={handleChange}
               rows="2"
               placeholder="Item description..."
-              className="w-full rounded-[12px] border border-[#d1d5db] px-4 py-3 outline-none resize-none text-[14px]"
+              className="w-full rounded-[10px] sm:rounded-[12px] border border-[#d1d5db] px-3 sm:px-4 py-3 outline-none resize-none text-[14px]"
             />
           </div>
 
-          <div className="mt-8 border-t border-[#e5e7eb] pt-6">
+          <div className="mt-6 sm:mt-8 border-t border-[#e5e7eb] pt-4 sm:pt-6">
 
             {/* Sales Information */}
-            <div className="mb-6">
-              <label className="flex items-center gap-2 cursor-pointer mb-4">
+            <div className="mb-4 sm:mb-6">
+              <label className="flex items-center gap-2 cursor-pointer mb-3 sm:mb-4">
                 <input
                   type="checkbox"
                   checked={showSales}
                   onChange={(e) => setShowSales(e.target.checked)}
                   className="w-4 h-4 accent-[#6B21A8]"
                 />
-                <span className="text-[15px] font-semibold text-[#111827]">
+                <span className="text-[14px] sm:text-[15px] font-semibold text-[#111827]">
                   Sales Information
                 </span>
               </label>
 
               {showSales && (
-                <div className="grid grid-cols-2 gap-5 pl-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5 pl-0 sm:pl-2">
                   <div>
-                    <label className="mb-2 block text-[13px] font-medium text-[#374151]">
+                    <label className="mb-1.5 sm:mb-2 block text-[13px] font-medium text-[#374151]">
                       Selling Price <span className="text-red-500">*</span>
                     </label>
                     <div className="flex items-center gap-2">
@@ -200,20 +200,20 @@ export default function AddInventoryModal({ isOpen, onClose, onCreated }) {
                         value={formData.sellingPrice}
                         onChange={handleChange}
                         placeholder="0.00"
-                        className="h-[44px] w-full rounded-[10px] border border-[#d1d5db] px-3 outline-none text-[14px]"
+                        className="h-[42px] sm:h-[44px] w-full rounded-[10px] border border-[#d1d5db] px-3 outline-none text-[14px]"
                       />
                     </div>
                   </div>
 
                   <div>
-                    <label className="mb-2 block text-[13px] font-medium text-[#374151]">
+                    <label className="mb-1.5 sm:mb-2 block text-[13px] font-medium text-[#374151]">
                       Account
                     </label>
                     <select
                       name="salesAccount"
                       value={formData.salesAccount}
                       onChange={handleChange}
-                      className="h-[44px] w-full rounded-[10px] border border-[#d1d5db] px-3 outline-none text-[14px]"
+                      className="h-[42px] sm:h-[44px] w-full rounded-[10px] border border-[#d1d5db] px-3 outline-none text-[14px]"
                     >
                       <option>Sales</option>
                       <option>Service Revenue</option>
@@ -222,8 +222,8 @@ export default function AddInventoryModal({ isOpen, onClose, onCreated }) {
                     </select>
                   </div>
 
-                  <div className="col-span-2">
-                    <label className="mb-2 block text-[13px] font-medium text-[#374151]">
+                  <div className="sm:col-span-2">
+                    <label className="mb-1.5 sm:mb-2 block text-[13px] font-medium text-[#374151]">
                       Description
                     </label>
                     <textarea
@@ -240,23 +240,23 @@ export default function AddInventoryModal({ isOpen, onClose, onCreated }) {
             </div>
 
             {/* Purchase Information */}
-            <div className="border-t border-[#e5e7eb] pt-6">
-              <label className="flex items-center gap-2 cursor-pointer mb-4">
+            <div className="border-t border-[#e5e7eb] pt-4 sm:pt-6">
+              <label className="flex items-center gap-2 cursor-pointer mb-3 sm:mb-4">
                 <input
                   type="checkbox"
                   checked={showPurchase}
                   onChange={(e) => setShowPurchase(e.target.checked)}
                   className="w-4 h-4 accent-[#6B21A8]"
                 />
-                <span className="text-[15px] font-semibold text-[#111827]">
+                <span className="text-[14px] sm:text-[15px] font-semibold text-[#111827]">
                   Purchase Information
                 </span>
               </label>
 
               {showPurchase && (
-                <div className="grid grid-cols-2 gap-5 pl-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5 pl-0 sm:pl-2">
                   <div>
-                    <label className="mb-2 block text-[13px] font-medium text-[#374151]">
+                    <label className="mb-1.5 sm:mb-2 block text-[13px] font-medium text-[#374151]">
                       Cost Price <span className="text-red-500">*</span>
                     </label>
                     <div className="flex items-center gap-2">
@@ -267,20 +267,20 @@ export default function AddInventoryModal({ isOpen, onClose, onCreated }) {
                         value={formData.costPrice}
                         onChange={handleChange}
                         placeholder="0.00"
-                        className="h-[44px] w-full rounded-[10px] border border-[#d1d5db] px-3 outline-none text-[14px]"
+                        className="h-[42px] sm:h-[44px] w-full rounded-[10px] border border-[#d1d5db] px-3 outline-none text-[14px]"
                       />
                     </div>
                   </div>
 
                   <div>
-                    <label className="mb-2 block text-[13px] font-medium text-[#374151]">
+                    <label className="mb-1.5 sm:mb-2 block text-[13px] font-medium text-[#374151]">
                       Account
                     </label>
                     <select
                       name="purchaseAccount"
                       value={formData.purchaseAccount}
                       onChange={handleChange}
-                      className="h-[44px] w-full rounded-[10px] border border-[#d1d5db] px-3 outline-none text-[14px]"
+                      className="h-[42px] sm:h-[44px] w-full rounded-[10px] border border-[#d1d5db] px-3 outline-none text-[14px]"
                     >
                       <option>Cost of Goods Sold</option>
                       <option>Purchases</option>
@@ -289,8 +289,8 @@ export default function AddInventoryModal({ isOpen, onClose, onCreated }) {
                     </select>
                   </div>
 
-                  <div className="col-span-2">
-                    <label className="mb-2 block text-[13px] font-medium text-[#374151]">
+                  <div className="sm:col-span-2">
+                    <label className="mb-1.5 sm:mb-2 block text-[13px] font-medium text-[#374151]">
                       Description
                     </label>
                     <textarea
@@ -304,14 +304,14 @@ export default function AddInventoryModal({ isOpen, onClose, onCreated }) {
                   </div>
 
                   <div>
-                    <label className="mb-2 block text-[13px] font-medium text-[#374151]">
+                    <label className="mb-1.5 sm:mb-2 block text-[13px] font-medium text-[#374151]">
                       Preferred Vendor
                     </label>
                     <select
                       name="preferredVendorId"
                       value={formData.preferredVendorId}
                       onChange={handleChange}
-                      className="h-[44px] w-full rounded-[10px] border border-[#d1d5db] px-3 outline-none text-[14px]"
+                      className="h-[42px] sm:h-[44px] w-full rounded-[10px] border border-[#d1d5db] px-3 outline-none text-[14px]"
                     >
                       <option value="">Select vendor</option>
                       {vendors.map((vendor) => (
@@ -327,21 +327,21 @@ export default function AddInventoryModal({ isOpen, onClose, onCreated }) {
           </div>
 
           {error && (
-            <p className="mt-4 text-[14px] text-red-600">{error}</p>
+            <p className="mt-4 text-[13px] sm:text-[14px] text-red-600">{error}</p>
           )}
 
-          <div className="mt-8 flex justify-end gap-3">
+          <div className="mt-6 sm:mt-8 flex flex-col-reverse sm:flex-row justify-end gap-2 sm:gap-3">
             <button
               type="button"
               onClick={onClose}
-              className="h-[46px] rounded-[12px] border border-[#d1d5db] px-6 text-[14px] font-medium text-[#111827]"
+              className="h-[44px] sm:h-[46px] rounded-[12px] border border-[#d1d5db] px-6 text-[14px] font-medium text-[#111827] w-full sm:w-auto"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="h-[46px] rounded-[12px] bg-[#2563eb] px-6 text-[14px] font-semibold text-white disabled:opacity-70"
+              className="h-[44px] sm:h-[46px] rounded-[12px] bg-[#2563eb] px-6 text-[14px] font-semibold text-white disabled:opacity-70 w-full sm:w-auto"
             >
               {loading ? "Saving..." : "Save Item"}
             </button>
@@ -355,7 +355,7 @@ export default function AddInventoryModal({ isOpen, onClose, onCreated }) {
 function Field({ label, name, value, onChange, type = "text", placeholder = "" }) {
   return (
     <div>
-      <label className="mb-2 block text-[14px] font-medium text-[#111827]">
+      <label className="mb-1.5 sm:mb-2 block text-[13px] sm:text-[14px] font-medium text-[#111827]">
         {label}
       </label>
       <input
@@ -364,7 +364,7 @@ function Field({ label, name, value, onChange, type = "text", placeholder = "" }
         value={value}
         onChange={onChange}
         placeholder={placeholder}
-        className="h-[46px] w-full rounded-[12px] border border-[#d1d5db] px-4 outline-none focus:border-[#2563eb] text-[14px]"
+        className="h-[42px] sm:h-[46px] w-full rounded-[10px] sm:rounded-[12px] border border-[#d1d5db] px-3 sm:px-4 outline-none focus:border-[#2563eb] text-[14px]"
       />
     </div>
   );
@@ -373,14 +373,14 @@ function Field({ label, name, value, onChange, type = "text", placeholder = "" }
 function SelectField({ label, name, value, onChange, options = [] }) {
   return (
     <div>
-      <label className="mb-2 block text-[14px] font-medium text-[#111827]">
+      <label className="mb-1.5 sm:mb-2 block text-[13px] sm:text-[14px] font-medium text-[#111827]">
         {label}
       </label>
       <select
         name={name}
         value={value}
         onChange={onChange}
-        className="h-[46px] w-full rounded-[12px] border border-[#d1d5db] px-4 outline-none focus:border-[#2563eb] text-[14px]"
+        className="h-[42px] sm:h-[46px] w-full rounded-[10px] sm:rounded-[12px] border border-[#d1d5db] px-3 sm:px-4 outline-none focus:border-[#2563eb] text-[14px]"
       >
         {options.map((option) => (
           <option key={option} value={option}>

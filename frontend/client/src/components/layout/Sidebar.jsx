@@ -168,7 +168,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
           </nav>
 
           <div className="border-t border-slate-100 pt-4 space-y-1">
-            <NavItem icon={HelpCircle} label="Help Center" to="/help" />
+            {/* <NavItem icon={HelpCircle} label="Help Center" to="/help" /> */}
             <button
               onClick={handleLogout}
               className="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg cursor-pointer text-slate-500 hover:bg-slate-50 transition"

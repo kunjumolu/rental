@@ -14,53 +14,43 @@ const iconColorMap = {
   inventory: "#3b82f6",
 };
 
-export default function StatsCard({ title, value, change, changeLabel, type }) {
+export default function StatsCard({
+  title,
+  value,
+  change,
+  changeLabel,
+  type,
+}) {
   const Icon = iconMap[type] || DollarSign;
   const iconColor = iconColorMap[type] || "#3b82f6";
   const isNegative = change && change.startsWith("-");
   const isOverdue = type === "overdue";
 
   return (
-    <div
-      style={{
-        background: "#fff",
-        border: "1px solid #e5e7eb",
-        borderRadius: "12px",
-        padding: "24px",
-        display: "flex",
-        flexDirection: "column",
-        gap: "8px",
-        flex: 1,
-        minWidth: 0,
-      }}
-    >
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-        <span style={{ fontSize: "14px", color: "#6b7280", fontWeight: 500 }}>{title}</span>
-        <Icon size={20} color={iconColor} />
+    <div className="bg-white border border-gray-200 rounded-xl p-4 sm:p-6 flex flex-col gap-1.5 flex-1 min-w-0">
+      <div className="flex justify-between items-start">
+        <span className="text-xs sm:text-sm text-gray-500 font-medium truncate">
+          {title}
+        </span>
+        <Icon size={16} className="sm:w-5 sm:h-5 shrink-0" color={iconColor} />
       </div>
       <div
-        style={{
-          fontSize: "32px",
-          fontWeight: 700,
-          color: isOverdue ? "#ef4444" : "#111827",
-          lineHeight: 1.1,
-        }}
+        className={`text-2xl sm:text-[28px] md:text-[32px] font-bold leading-tight truncate ${
+          isOverdue ? "text-red-500" : "text-gray-900"
+        }`}
       >
         {value}
       </div>
       {change && (
-        <div style={{ display: "flex", alignItems: "center", gap: "4px", fontSize: "13px" }}>
+        <div className="flex items-center gap-1 text-[11px] sm:text-[13px] flex-wrap">
           <span
-            style={{
-              color: isNegative ? "#f59e0b" : "#10b981",
-              display: "flex",
-              alignItems: "center",
-              gap: "2px",
-            }}
+            className={`flex items-center gap-0.5 whitespace-nowrap ${
+              isNegative ? "text-amber-500" : "text-emerald-500"
+            }`}
           >
             {isNegative ? "↘" : "↗"} {change}
           </span>
-          <span style={{ color: "#9ca3af" }}>{changeLabel}</span>
+          <span className="text-gray-400">{changeLabel}</span>
         </div>
       )}
     </div>

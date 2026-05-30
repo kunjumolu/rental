@@ -274,24 +274,25 @@ export default function NewInvoiceModal({ isOpen, onClose, onCreated }) {
   );
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
-      <div className="w-full max-w-[820px] max-h-[92vh] overflow-y-auto rounded-[18px] bg-white shadow-2xl">
-        <div className="flex items-center justify-between px-8 py-6 border-b border-[#e5e7eb]">
-          <h2 className="text-[22px] font-bold text-[#111827]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-2 sm:px-4">
+      <div className="w-full max-w-[820px] max-h-[92vh] overflow-y-auto rounded-[14px] sm:rounded-[18px] bg-white shadow-2xl">
+        <div className="flex items-center justify-between px-4 sm:px-6 md:px-8 py-4 sm:py-5 md:py-6 border-b border-[#e5e7eb]">
+          <h2 className="text-[17px] sm:text-[19px] md:text-[22px] font-bold text-[#111827]">
             Create New Invoice
           </h2>
           <button
             onClick={onClose}
             className="text-[#6b7280] hover:text-[#111827]"
           >
-            <X size={24} />
+            <X size={22} className="sm:hidden" />
+            <X size={24} className="hidden sm:block" />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="px-8 pb-8 pt-6">
-          <div className="grid grid-cols-2 gap-5">
+        <form onSubmit={handleSubmit} className="px-4 sm:px-6 md:px-8 pb-6 sm:pb-8 pt-4 sm:pt-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
             <div>
-              <label className="mb-2 block text-[14px] font-medium text-[#111827]">
+              <label className="mb-1.5 sm:mb-2 block text-[13px] sm:text-[14px] font-medium text-[#111827]">
                 Customer *
               </label>
               <select
@@ -311,7 +312,7 @@ export default function NewInvoiceModal({ isOpen, onClose, onCreated }) {
                     paidAmount: 0,
                   }));
                 }}
-                className="h-[48px] w-full rounded-[12px] border border-[#d1d5db] px-4 outline-none"
+                className="h-[44px] sm:h-[48px] w-full rounded-[10px] sm:rounded-[12px] border border-[#d1d5db] px-3 sm:px-4 outline-none text-[14px]"
               >
                 <option value="">Select customer</option>
                 {customers.map((customer) => (
@@ -323,7 +324,7 @@ export default function NewInvoiceModal({ isOpen, onClose, onCreated }) {
             </div>
 
             <div>
-              <label className="mb-2 block text-[14px] font-medium text-[#111827]">
+              <label className="mb-1.5 sm:mb-2 block text-[13px] sm:text-[14px] font-medium text-[#111827]">
                 Status
               </label>
               <select
@@ -331,7 +332,7 @@ export default function NewInvoiceModal({ isOpen, onClose, onCreated }) {
                 onChange={(e) =>
                   setFormData({ ...formData, status: e.target.value })
                 }
-                className="h-[48px] w-full rounded-[12px] border border-[#d1d5db] px-4 outline-none"
+                className="h-[44px] sm:h-[48px] w-full rounded-[10px] sm:rounded-[12px] border border-[#d1d5db] px-3 sm:px-4 outline-none text-[14px]"
               >
                 <option value="draft">Draft</option>
                 <option value="sent">Sent</option>
@@ -341,8 +342,8 @@ export default function NewInvoiceModal({ isOpen, onClose, onCreated }) {
             </div>
           </div>
 
-          <div className="mt-5">
-            <label className="mb-2 block text-[14px] font-medium text-[#111827]">
+          <div className="mt-4 sm:mt-5">
+            <label className="mb-1.5 sm:mb-2 block text-[13px] sm:text-[14px] font-medium text-[#111827]">
               Customer Address
             </label>
             <input
@@ -351,24 +352,24 @@ export default function NewInvoiceModal({ isOpen, onClose, onCreated }) {
               onChange={(e) =>
                 setFormData({ ...formData, customerAddress: e.target.value })
               }
-              className="h-[46px] w-full rounded-[12px] border border-[#d1d5db] px-4 outline-none"
+              className="h-[42px] sm:h-[46px] w-full rounded-[10px] sm:rounded-[12px] border border-[#d1d5db] px-3 sm:px-4 outline-none text-[14px]"
             />
           </div>
 
           {/* Rental Order Selector */}
-          <div className="mt-6 rounded-[14px] border border-[#e5e7eb] bg-[#f9fafb] p-5">
-            <div className="flex items-center gap-2 mb-3">
+          <div className="mt-4 sm:mt-6 rounded-[12px] sm:rounded-[14px] border border-[#e5e7eb] bg-[#f9fafb] p-3 sm:p-4 md:p-5">
+            <div className="flex items-center gap-2 mb-2 sm:mb-3">
               <ShoppingCart size={16} className="text-[#2563eb]" />
-              <h3 className="text-[15px] font-semibold text-[#111827]">
+              <h3 className="text-[13px] sm:text-[14px] md:text-[15px] font-semibold text-[#111827]">
                 Import from Rental Order
               </h3>
-              <span className="text-[12px] text-[#6b7280]">(optional)</span>
+              <span className="text-[11px] sm:text-[12px] text-[#6b7280]">(optional)</span>
             </div>
 
             <select
               value={selectedRental?.id || ""}
               onChange={(e) => handleRentalSelect(e.target.value)}
-              className="h-[48px] w-full rounded-[12px] border border-[#d1d5db] px-4 outline-none bg-white"
+              className="h-[42px] sm:h-[48px] w-full rounded-[10px] sm:rounded-[12px] border border-[#d1d5db] px-3 sm:px-4 outline-none bg-white text-[13px] sm:text-[14px]"
             >
               <option value="">
                 Select a rental order to import items...
@@ -382,23 +383,23 @@ export default function NewInvoiceModal({ isOpen, onClose, onCreated }) {
             </select>
 
             {rentalDetail && (
-              <div className="mt-4 rounded-[12px] bg-white border border-[#e5e7eb] overflow-hidden">
-                <div className="flex items-center justify-between px-4 py-3 bg-[#f0f9ff] border-b border-[#e5e7eb]">
+              <div className="mt-3 sm:mt-4 rounded-[10px] sm:rounded-[12px] bg-white border border-[#e5e7eb] overflow-hidden">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between px-3 sm:px-4 py-2 sm:py-3 bg-[#f0f9ff] border-b border-[#e5e7eb] gap-1">
                   <div>
-                    <p className="text-[14px] font-bold text-[#111827]">
+                    <p className="text-[13px] sm:text-[14px] font-bold text-[#111827]">
                       {rentalDetail.orderNumber}
                     </p>
-                    <p className="text-[12px] text-[#6b7280]">
+                    <p className="text-[11px] sm:text-[12px] text-[#6b7280]">
                       {rentalDetail.customerName} • {rentalDetail.startDate} →{" "}
                       {rentalDetail.endDate}
                     </p>
                   </div>
-                  <div className="text-right">
-                    <p className="text-[14px] font-bold text-[#2563eb]">
+                  <div className="sm:text-right">
+                    <p className="text-[13px] sm:text-[14px] font-bold text-[#2563eb]">
                       ₹{Number(rentalDetail.total).toFixed(2)}
                     </p>
                     {Number(rentalDetail.depositAmount) > 0 && (
-                      <p className="text-[12px] text-[#10b981]">
+                      <p className="text-[11px] sm:text-[12px] text-[#10b981]">
                         Deposit: ₹
                         {Number(rentalDetail.depositAmount).toFixed(2)}
                       </p>
@@ -408,106 +409,120 @@ export default function NewInvoiceModal({ isOpen, onClose, onCreated }) {
 
                 {Array.isArray(rentalDetail.items) &&
                   rentalDetail.items.length > 0 && (
-                    <table className="w-full">
-                      <thead>
-                        <tr className="bg-[#f9fafb] border-b border-[#e5e7eb]">
-                          <th className="px-4 py-2 text-left text-[12px] font-semibold text-[#6b7280]">
-                            Item Name
-                          </th>
-                          <th className="px-4 py-2 text-center text-[12px] font-semibold text-[#6b7280]">
-                            Qty
-                          </th>
-                          <th className="px-4 py-2 text-center text-[12px] font-semibold text-[#6b7280]">
-                            Days
-                          </th>
-                          <th className="px-4 py-2 text-right text-[12px] font-semibold text-[#6b7280]">
-                            Rate/Day
-                          </th>
-                          <th className="px-4 py-2 text-right text-[12px] font-semibold text-[#6b7280]">
-                            Subtotal
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {rentalDetail.items.map((item, i) => {
-                          const itemSubtotal =
-                            Number(item.quantity || 0) *
-                            Number(item.days || 1) *
-                            Number(item.rate || 0);
+                    <div className="overflow-x-auto">
+                      <table className="w-full">
+                        <thead>
+                          <tr className="bg-[#f9fafb] border-b border-[#e5e7eb]">
+                            <th className="px-3 sm:px-4 py-2 text-left text-[11px] sm:text-[12px] font-semibold text-[#6b7280]">
+                              Item Name
+                            </th>
+                            <th className="px-3 sm:px-4 py-2 text-center text-[11px] sm:text-[12px] font-semibold text-[#6b7280]">
+                              Qty
+                            </th>
+                            <th className="px-3 sm:px-4 py-2 text-center text-[11px] sm:text-[12px] font-semibold text-[#6b7280] hidden sm:table-cell">
+                              Days
+                            </th>
+                            <th className="px-3 sm:px-4 py-2 text-right text-[11px] sm:text-[12px] font-semibold text-[#6b7280] hidden sm:table-cell">
+                              Rate/Day
+                            </th>
+                            <th className="px-3 sm:px-4 py-2 text-right text-[11px] sm:text-[12px] font-semibold text-[#6b7280]">
+                              Subtotal
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {rentalDetail.items.map((item, i) => {
+                            const itemSubtotal =
+                              Number(item.quantity || 0) *
+                              Number(item.days || 1) *
+                              Number(item.rate || 0);
 
-                          return (
-                            <tr
-                              key={i}
-                              className="border-b border-[#f3f4f6] last:border-0"
+                            return (
+                              <tr
+                                key={i}
+                                className="border-b border-[#f3f4f6] last:border-0"
+                              >
+                                <td className="px-3 sm:px-4 py-2 sm:py-3 text-[12px] sm:text-[13px] text-[#111827] font-medium">
+                                  {item.itemName}
+                                </td>
+                                <td className="px-3 sm:px-4 py-2 sm:py-3 text-[12px] sm:text-[13px] text-[#6b7280] text-center">
+                                  {item.quantity}
+                                </td>
+                                <td className="px-3 sm:px-4 py-2 sm:py-3 text-[12px] sm:text-[13px] text-[#6b7280] text-center hidden sm:table-cell">
+                                  {item.days}
+                                </td>
+                                <td className="px-3 sm:px-4 py-2 sm:py-3 text-[12px] sm:text-[13px] text-[#6b7280] text-right hidden sm:table-cell">
+                                  ₹{Number(item.rate).toFixed(2)}
+                                </td>
+                                <td className="px-3 sm:px-4 py-2 sm:py-3 text-[12px] sm:text-[13px] font-semibold text-[#111827] text-right">
+                                  ₹{itemSubtotal.toFixed(2)}
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                        <tfoot>
+                          <tr className="border-t border-[#e5e7eb] bg-[#f9fafb]">
+                            <td
+                              colSpan={3}
+                              className="px-3 sm:px-4 py-2 sm:py-3 text-[12px] sm:text-[13px] font-semibold text-[#374151] text-right sm:hidden"
                             >
-                              <td className="px-4 py-3 text-[13px] text-[#111827] font-medium">
-                                {item.itemName}
-                              </td>
-                              <td className="px-4 py-3 text-[13px] text-[#6b7280] text-center">
-                                {item.quantity}
-                              </td>
-                              <td className="px-4 py-3 text-[13px] text-[#6b7280] text-center">
-                                {item.days}
-                              </td>
-                              <td className="px-4 py-3 text-[13px] text-[#6b7280] text-right">
-                                ₹{Number(item.rate).toFixed(2)}
-                              </td>
-                              <td className="px-4 py-3 text-[13px] font-semibold text-[#111827] text-right">
-                                ₹{itemSubtotal.toFixed(2)}
-                              </td>
-                            </tr>
-                          );
-                        })}
-                      </tbody>
-                      <tfoot>
-                        <tr className="border-t border-[#e5e7eb] bg-[#f9fafb]">
-                          <td
-                            colSpan={4}
-                            className="px-4 py-3 text-[13px] font-semibold text-[#374151] text-right"
-                          >
-                            Rental Total:
-                          </td>
-                          <td className="px-4 py-3 text-[14px] font-bold text-[#2563eb] text-right">
-                            ₹{Number(rentalDetail.total).toFixed(2)}
-                          </td>
-                        </tr>
-                        {Number(rentalDetail.depositAmount) > 0 && (
-                          <tr>
+                              Rental Total:
+                            </td>
                             <td
                               colSpan={4}
-                              className="px-4 py-2 text-[13px] font-semibold text-[#10b981] text-right"
+                              className="px-3 sm:px-4 py-2 sm:py-3 text-[12px] sm:text-[13px] font-semibold text-[#374151] text-right hidden sm:table-cell"
                             >
-                              Deposit Paid:
+                              Rental Total:
                             </td>
-                            <td className="px-4 py-2 text-[13px] font-bold text-[#10b981] text-right">
-                              ₹{Number(rentalDetail.depositAmount).toFixed(2)}
+                            <td className="px-3 sm:px-4 py-2 sm:py-3 text-[13px] sm:text-[14px] font-bold text-[#2563eb] text-right">
+                              ₹{Number(rentalDetail.total).toFixed(2)}
                             </td>
                           </tr>
-                        )}
-                      </tfoot>
-                    </table>
+                          {Number(rentalDetail.depositAmount) > 0 && (
+                            <tr>
+                              <td
+                                colSpan={3}
+                                className="px-3 sm:px-4 py-1 sm:py-2 text-[12px] sm:text-[13px] font-semibold text-[#10b981] text-right sm:hidden"
+                              >
+                                Deposit Paid:
+                              </td>
+                              <td
+                                colSpan={4}
+                                className="px-3 sm:px-4 py-1 sm:py-2 text-[12px] sm:text-[13px] font-semibold text-[#10b981] text-right hidden sm:table-cell"
+                              >
+                                Deposit Paid:
+                              </td>
+                              <td className="px-3 sm:px-4 py-1 sm:py-2 text-[12px] sm:text-[13px] font-bold text-[#10b981] text-right">
+                                ₹{Number(rentalDetail.depositAmount).toFixed(2)}
+                              </td>
+                            </tr>
+                          )}
+                        </tfoot>
+                      </table>
+                    </div>
                   )}
               </div>
             )}
           </div>
 
           {/* Line Items */}
-          <div className="mt-8 flex items-center justify-between">
-            <h3 className="text-[16px] font-medium text-[#111827]">
+          <div className="mt-6 sm:mt-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+            <h3 className="text-[15px] sm:text-[16px] font-medium text-[#111827]">
               Line Items
             </h3>
             <button
               type="button"
               onClick={handleAddItem}
-              className="h-[42px] px-4 rounded-[12px] border border-[#d1d5db] bg-white text-[14px] font-medium flex items-center gap-2"
+              className="h-[40px] sm:h-[42px] px-4 rounded-[12px] border border-[#d1d5db] bg-white text-[13px] sm:text-[14px] font-medium flex items-center gap-2"
             >
               <Plus size={16} /> Add Item
             </button>
           </div>
 
-          <div className="mt-4 space-y-4">
+          <div className="mt-3 sm:mt-4 space-y-3 sm:space-y-4">
             {formData.items.length === 0 ? (
-              <p className="text-[14px] text-[#6b7280]">
+              <p className="text-[13px] sm:text-[14px] text-[#6b7280]">
                 No items added yet. Select a rental order above or click Add
                 Item.
               </p>
@@ -519,58 +534,104 @@ export default function NewInvoiceModal({ isOpen, onClose, onCreated }) {
                 return (
                   <div
                     key={index}
-                    className="grid grid-cols-12 gap-3 items-end rounded-[14px] border border-[#e5e7eb] p-4"
+                    className="rounded-[12px] sm:rounded-[14px] border border-[#e5e7eb] p-3 sm:p-4"
                   >
-                    <div className="col-span-6">
-                      <label className="mb-2 block text-[13px] font-medium text-[#111827]">
-                        Description
-                      </label>
-                      <input
-                        type="text"
-                        value={item.description}
-                        onChange={(e) =>
-                          handleItemChange(index, "description", e.target.value)
-                        }
-                        className="h-[42px] w-full rounded-[10px] border border-[#d1d5db] px-3 outline-none"
-                      />
+                    {/* Mobile: stacked layout */}
+                    <div className="block sm:hidden space-y-3">
+                      <div>
+                        <label className="mb-1 block text-[12px] font-medium text-[#111827]">Description</label>
+                        <input
+                          type="text"
+                          value={item.description}
+                          onChange={(e) => handleItemChange(index, "description", e.target.value)}
+                          className="h-[40px] w-full rounded-[10px] border border-[#d1d5db] px-3 outline-none text-[14px]"
+                        />
+                      </div>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <label className="mb-1 block text-[12px] font-medium text-[#111827]">Qty</label>
+                          <input
+                            type="number"
+                            value={item.quantity}
+                            onChange={(e) => handleItemChange(index, "quantity", e.target.value)}
+                            className="h-[40px] w-full rounded-[10px] border border-[#d1d5db] px-3 outline-none text-[14px]"
+                          />
+                        </div>
+                        <div>
+                          <label className="mb-1 block text-[12px] font-medium text-[#111827]">Unit Price</label>
+                          <input
+                            type="number"
+                            value={item.unitPrice}
+                            onChange={(e) => handleItemChange(index, "unitPrice", e.target.value)}
+                            className="h-[40px] w-full rounded-[10px] border border-[#d1d5db] px-3 outline-none text-[14px]"
+                          />
+                        </div>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-[14px] font-medium text-[#111827]">₹{amount.toFixed(2)}</span>
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveItem(index)}
+                          className="h-[38px] w-[38px] rounded-[10px] border border-[#fecaca] text-red-500 flex items-center justify-center"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
                     </div>
-                    <div className="col-span-2">
-                      <label className="mb-2 block text-[13px] font-medium text-[#111827]">
-                        Qty
-                      </label>
-                      <input
-                        type="number"
-                        value={item.quantity}
-                        onChange={(e) =>
-                          handleItemChange(index, "quantity", e.target.value)
-                        }
-                        className="h-[42px] w-full rounded-[10px] border border-[#d1d5db] px-3 outline-none"
-                      />
-                    </div>
-                    <div className="col-span-2">
-                      <label className="mb-2 block text-[13px] font-medium text-[#111827]">
-                        Unit Price
-                      </label>
-                      <input
-                        type="number"
-                        value={item.unitPrice}
-                        onChange={(e) =>
-                          handleItemChange(index, "unitPrice", e.target.value)
-                        }
-                        className="h-[42px] w-full rounded-[10px] border border-[#d1d5db] px-3 outline-none"
-                      />
-                    </div>
-                    <div className="col-span-1 text-[14px] font-medium text-[#111827]">
-                      ₹{amount.toFixed(2)}
-                    </div>
-                    <div className="col-span-1 flex justify-end">
-                      <button
-                        type="button"
-                        onClick={() => handleRemoveItem(index)}
-                        className="h-[42px] w-[42px] rounded-[10px] border border-[#fecaca] text-red-500 flex items-center justify-center"
-                      >
-                        <Trash2 size={16} />
-                      </button>
+
+                    {/* Desktop: grid layout */}
+                    <div className="hidden sm:grid grid-cols-12 gap-3 items-end">
+                      <div className="col-span-6">
+                        <label className="mb-2 block text-[13px] font-medium text-[#111827]">
+                          Description
+                        </label>
+                        <input
+                          type="text"
+                          value={item.description}
+                          onChange={(e) =>
+                            handleItemChange(index, "description", e.target.value)
+                          }
+                          className="h-[42px] w-full rounded-[10px] border border-[#d1d5db] px-3 outline-none text-[14px]"
+                        />
+                      </div>
+                      <div className="col-span-2">
+                        <label className="mb-2 block text-[13px] font-medium text-[#111827]">
+                          Qty
+                        </label>
+                        <input
+                          type="number"
+                          value={item.quantity}
+                          onChange={(e) =>
+                            handleItemChange(index, "quantity", e.target.value)
+                          }
+                          className="h-[42px] w-full rounded-[10px] border border-[#d1d5db] px-3 outline-none text-[14px]"
+                        />
+                      </div>
+                      <div className="col-span-2">
+                        <label className="mb-2 block text-[13px] font-medium text-[#111827]">
+                          Unit Price
+                        </label>
+                        <input
+                          type="number"
+                          value={item.unitPrice}
+                          onChange={(e) =>
+                            handleItemChange(index, "unitPrice", e.target.value)
+                          }
+                          className="h-[42px] w-full rounded-[10px] border border-[#d1d5db] px-3 outline-none text-[14px]"
+                        />
+                      </div>
+                      <div className="col-span-1 text-[14px] font-medium text-[#111827]">
+                        ₹{amount.toFixed(2)}
+                      </div>
+                      <div className="col-span-1 flex justify-end">
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveItem(index)}
+                          className="h-[42px] w-[42px] rounded-[10px] border border-[#fecaca] text-red-500 flex items-center justify-center"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
                     </div>
                   </div>
                 );
@@ -579,9 +640,9 @@ export default function NewInvoiceModal({ isOpen, onClose, onCreated }) {
           </div>
 
           {/* Tax Rate, Discount, Paid Amount */}
-          <div className="mt-8 grid grid-cols-3 gap-5">
+          <div className="mt-6 sm:mt-8 grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5">
             <div>
-              <label className="mb-2 block text-[14px] font-medium text-[#111827]">
+              <label className="mb-1.5 sm:mb-2 block text-[13px] sm:text-[14px] font-medium text-[#111827]">
                 Tax Rate (%)
               </label>
               <input
@@ -590,11 +651,11 @@ export default function NewInvoiceModal({ isOpen, onClose, onCreated }) {
                 onChange={(e) =>
                   setFormData({ ...formData, taxRate: e.target.value })
                 }
-                className="h-[46px] w-full rounded-[12px] border border-[#d1d5db] px-4 outline-none"
+                className="h-[42px] sm:h-[46px] w-full rounded-[10px] sm:rounded-[12px] border border-[#d1d5db] px-3 sm:px-4 outline-none text-[14px]"
               />
             </div>
             <div>
-              <label className="mb-2 block text-[14px] font-medium text-[#111827]">
+              <label className="mb-1.5 sm:mb-2 block text-[13px] sm:text-[14px] font-medium text-[#111827]">
                 Discount (₹)
               </label>
               <input
@@ -603,11 +664,11 @@ export default function NewInvoiceModal({ isOpen, onClose, onCreated }) {
                 onChange={(e) =>
                   setFormData({ ...formData, discount: e.target.value })
                 }
-                className="h-[46px] w-full rounded-[12px] border border-[#d1d5db] px-4 outline-none"
+                className="h-[42px] sm:h-[46px] w-full rounded-[10px] sm:rounded-[12px] border border-[#d1d5db] px-3 sm:px-4 outline-none text-[14px]"
               />
             </div>
             <div>
-              <label className="mb-2 block text-[14px] font-medium text-[#111827]">
+              <label className="mb-1.5 sm:mb-2 block text-[13px] sm:text-[14px] font-medium text-[#111827]">
                 Deposit / Amount Paid (₹)
               </label>
               <input
@@ -616,37 +677,37 @@ export default function NewInvoiceModal({ isOpen, onClose, onCreated }) {
                 onChange={(e) =>
                   setFormData({ ...formData, paidAmount: e.target.value })
                 }
-                className="h-[46px] w-full rounded-[12px] border border-[#d1d5db] px-4 outline-none"
+                className="h-[42px] sm:h-[46px] w-full rounded-[10px] sm:rounded-[12px] border border-[#d1d5db] px-3 sm:px-4 outline-none text-[14px]"
               />
             </div>
           </div>
 
           {/* Totals Summary */}
-          <div className="mt-6 rounded-[14px] border border-[#e5e7eb] p-5 bg-[#f9fafb]">
-            <div className="flex justify-between text-[14px] text-[#6b7280] py-1">
+          <div className="mt-5 sm:mt-6 rounded-[12px] sm:rounded-[14px] border border-[#e5e7eb] p-3 sm:p-4 md:p-5 bg-[#f9fafb]">
+            <div className="flex justify-between text-[13px] sm:text-[14px] text-[#6b7280] py-1">
               <span>Subtotal:</span>
               <span>₹{subtotal.toFixed(2)}</span>
             </div>
-            <div className="flex justify-between text-[14px] text-[#6b7280] py-1">
+            <div className="flex justify-between text-[13px] sm:text-[14px] text-[#6b7280] py-1">
               <span>Tax ({formData.taxRate}%):</span>
               <span>₹{taxAmount.toFixed(2)}</span>
             </div>
-            <div className="flex justify-between text-[14px] text-[#6b7280] py-1">
+            <div className="flex justify-between text-[13px] sm:text-[14px] text-[#6b7280] py-1">
               <span>Discount:</span>
               <span>₹{discountAmount.toFixed(2)}</span>
             </div>
-            <div className="flex justify-between text-[20px] font-bold text-[#111827] pt-3 border-t border-[#e5e7eb] mt-2">
+            <div className="flex justify-between text-[16px] sm:text-[18px] md:text-[20px] font-bold text-[#111827] pt-2 sm:pt-3 border-t border-[#e5e7eb] mt-2">
               <span>Total:</span>
               <span>₹{total.toFixed(2)}</span>
             </div>
             {paidAmount > 0 && (
-              <div className="flex justify-between text-[14px] text-[#10b981] py-1 mt-1">
+              <div className="flex justify-between text-[13px] sm:text-[14px] text-[#10b981] py-1 mt-1">
                 <span>Deposit / Paid:</span>
                 <span>₹{paidAmount.toFixed(2)}</span>
               </div>
             )}
             {paidAmount > 0 && (
-              <div className="flex justify-between text-[16px] font-bold text-[#ef4444] py-1">
+              <div className="flex justify-between text-[14px] sm:text-[16px] font-bold text-[#ef4444] py-1">
                 <span>Balance Due:</span>
                 <span>₹{balanceDue.toFixed(2)}</span>
               </div>
@@ -654,8 +715,8 @@ export default function NewInvoiceModal({ isOpen, onClose, onCreated }) {
           </div>
 
           {/* Notes */}
-          <div className="mt-5">
-            <label className="mb-2 block text-[14px] font-medium text-[#111827]">
+          <div className="mt-4 sm:mt-5">
+            <label className="mb-1.5 sm:mb-2 block text-[13px] sm:text-[14px] font-medium text-[#111827]">
               Notes
             </label>
             <input
@@ -664,20 +725,20 @@ export default function NewInvoiceModal({ isOpen, onClose, onCreated }) {
               onChange={(e) =>
                 setFormData({ ...formData, notes: e.target.value })
               }
-              className="h-[46px] w-full rounded-[12px] border border-[#d1d5db] px-4 outline-none"
+              className="h-[42px] sm:h-[46px] w-full rounded-[10px] sm:rounded-[12px] border border-[#d1d5db] px-3 sm:px-4 outline-none text-[14px]"
             />
           </div>
 
           {error && (
-            <p className="mt-4 text-[14px] text-red-600">{error}</p>
+            <p className="mt-4 text-[13px] sm:text-[14px] text-red-600">{error}</p>
           )}
 
           {/* Buttons: Cancel | Print | Create Invoice */}
-          <div className="mt-8 flex justify-end gap-3">
+          <div className="mt-6 sm:mt-8 flex flex-col-reverse sm:flex-row justify-end gap-2 sm:gap-3">
             <button
               type="button"
               onClick={onClose}
-              className="h-[44px] rounded-[12px] border border-[#d1d5db] px-5 text-[14px] font-medium text-[#374151]"
+              className="h-[42px] sm:h-[44px] rounded-[12px] border border-[#d1d5db] px-5 text-[14px] font-medium text-[#374151] w-full sm:w-auto"
             >
               Cancel
             </button>
@@ -686,7 +747,7 @@ export default function NewInvoiceModal({ isOpen, onClose, onCreated }) {
               type="button"
               onClick={handlePrintAndCreate}
               disabled={loading}
-              className="h-[44px] rounded-[12px] border border-[#6B21A8] text-[#6B21A8] px-5 text-[14px] font-semibold flex items-center gap-2 disabled:opacity-70 hover:bg-[#f5f3ff] transition"
+              className="h-[42px] sm:h-[44px] rounded-[12px] border border-[#6B21A8] text-[#6B21A8] px-5 text-[14px] font-semibold flex items-center justify-center gap-2 disabled:opacity-70 hover:bg-[#f5f3ff] transition w-full sm:w-auto"
             >
               <Printer size={16} />
               {loading ? "Processing..." : "Print"}
@@ -695,7 +756,7 @@ export default function NewInvoiceModal({ isOpen, onClose, onCreated }) {
             <button
               type="submit"
               disabled={loading}
-              className="h-[44px] rounded-[12px] bg-[#2563eb] px-5 text-[14px] font-semibold text-white disabled:opacity-70"
+              className="h-[42px] sm:h-[44px] rounded-[12px] bg-[#2563eb] px-5 text-[14px] font-semibold text-white disabled:opacity-70 w-full sm:w-auto"
             >
               {loading ? "Creating..." : "Create Invoice"}
             </button>

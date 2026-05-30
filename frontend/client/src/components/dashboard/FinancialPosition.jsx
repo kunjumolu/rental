@@ -23,37 +23,37 @@ export default function FinancialPosition({ financial }) {
   ];
 
   return (
-    <div
-      style={{
-        background: "#fff",
-        border: "1px solid #e5e7eb",
-        borderRadius: "12px",
-        padding: "24px",
-        flex: 1,
-      }}
-    >
-      <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "20px" }}>
+    <div className="bg-white border border-gray-200 rounded-xl p-4 sm:p-6 flex-1">
+      <div className="flex items-center gap-2 mb-4">
         <DollarSign size={18} color="#3b82f6" />
-        <h3 style={{ fontSize: "16px", fontWeight: 600, color: "#111827" }}>Financial Position</h3>
+        <h3 className="text-sm sm:text-base font-semibold text-gray-900">
+          Financial Position
+        </h3>
       </div>
-      <div style={{ display: "flex", flexDirection: "column", gap: "0" }}>
+      <div className="flex flex-col">
         {positions.map((pos, i) => (
           <div
             key={pos.label}
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              padding: "14px 16px",
-              background: i % 2 === 0 ? "#f9fafb" : "#fff",
-              borderRadius: i === 0 ? "8px 8px 0 0" : i === positions.length - 1 ? "0 0 8px 8px" : "0",
-            }}
+            className={`flex justify-between items-center gap-3 px-3 py-2.5 sm:px-4 sm:py-3.5 ${
+              i % 2 === 0 ? "bg-gray-50" : "bg-white"
+            } ${i === 0 ? "rounded-t-lg" : ""} ${
+              i === positions.length - 1 ? "rounded-b-lg" : ""
+            }`}
           >
-            <div>
-              <div style={{ fontSize: "14px", fontWeight: 500, color: "#111827" }}>{pos.label}</div>
-              <div style={{ fontSize: "12px", color: "#9ca3af", marginTop: "2px" }}>{pos.sublabel}</div>
+            <div className="min-w-0">
+              <div className="text-xs sm:text-sm font-medium text-gray-900 truncate">
+                {pos.label}
+              </div>
+              <div className="text-xs text-gray-400 mt-0.5">
+                {pos.sublabel}
+              </div>
             </div>
-            <span style={{ fontWeight: 700, fontSize: "15px", color: pos.color }}>{pos.amount}</span>
+            <span
+              className="font-bold text-sm sm:text-[15px] whitespace-nowrap shrink-0"
+              style={{ color: pos.color }}
+            >
+              {pos.amount}
+            </span>
           </div>
         ))}
       </div>

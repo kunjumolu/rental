@@ -8,6 +8,7 @@ const iconConfig = {
     bg: "#fffbeb",
     borderColor: "#fde68a",
     route: "/rentals",
+    state: { activeFilter: "overdue" },
   },
   unpaid_invoices: {
     icon: DollarSign,
@@ -15,7 +16,7 @@ const iconConfig = {
     bg: "#fef2f2",
     borderColor: "#fecaca",
     route: "/invoices & billing",
-    state: { activeTab: "Accounts Receivable" },
+    state: { activeFilter: "overdue" },
   },
   low_stock: {
     icon: Package,
@@ -23,14 +24,15 @@ const iconConfig = {
     bg: "#fffbeb",
     borderColor: "#fde68a",
     route: "/inventory",
+    state: { activeFilter: "low_stock" },
   },
   bills_to_pay: {
     icon: FileText,
     iconColor: "#a855f7",
     bg: "#faf5ff",
     borderColor: "#e9d5ff",
-    route: "/accounting",
-    state: { activeTab: "Accounts Payable" },
+    route: "/expenses",
+    state: { activeFilter: "non-billable" },
   },
 };
 
@@ -41,29 +43,19 @@ export default function AlertsWarnings({ alerts = [] }) {
     const cfg = iconConfig[alert.type];
     if (!cfg) return;
 
-    if (cfg.state) {
-      navigate(cfg.route, { state: cfg.state });
-    } else {
-      navigate(cfg.route);
-    }
+    navigate(cfg.route, { state: cfg.state });
   };
 
   return (
-    <div
-      style={{
-        background: "#fff",
-        border: "1px solid #e5e7eb",
-        borderRadius: "12px",
-        padding: "24px",
-        flex: 1,
-      }}
-    >
-      <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "20px" }}>
+    <div className="bg-white border border-gray-200 rounded-xl p-4 sm:p-6 flex-1">
+      <div className="flex items-center gap-2 mb-4">
         <AlertTriangle size={18} color="#f59e0b" />
-        <h3 style={{ fontSize: "16px", fontWeight: 600, color: "#111827" }}>Alerts & Warnings</h3>
+        <h3 className="text-sm sm:text-base font-semibold text-gray-900">
+          Alerts & Warnings
+        </h3>
       </div>
 
-      <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+      <div className="flex flex-col gap-2">
         {alerts.map((alert) => {
           const cfg = iconConfig[alert.type] || iconConfig.low_stock;
           const Icon = cfg.icon;
@@ -71,34 +63,22 @@ export default function AlertsWarnings({ alerts = [] }) {
           return (
             <div
               key={alert.text}
+              className="flex items-center justify-between gap-2 px-3 py-2.5 sm:px-3.5 sm:py-3 rounded-lg border"
               style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                padding: "12px 14px",
                 background: cfg.bg,
-                border: `1px solid ${cfg.borderColor}`,
-                borderRadius: "8px",
+                borderColor: cfg.borderColor,
               }}
             >
-              <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                <Icon size={16} color={cfg.iconColor} />
-                <span style={{ fontSize: "14px", color: "#374151", fontWeight: 500 }}>
+              <div className="flex items-center gap-2 min-w-0 flex-1">
+                <Icon size={16} color={cfg.iconColor} className="shrink-0" />
+                <span className="text-xs sm:text-sm text-gray-700 font-medium truncate">
                   {alert.text}
                 </span>
               </div>
 
               <button
                 onClick={() => handleView(alert)}
-                style={{
-                  fontSize: "13px",
-                  color: "#6b7280",
-                  background: "none",
-                  border: "none",
-                  cursor: "pointer",
-                  fontWeight: 500,
-                  padding: "2px 6px",
-                }}
+                className="text-xs sm:text-sm text-gray-500 bg-none border-none cursor-pointer font-medium px-1.5 shrink-0 whitespace-nowrap"
               >
                 View
               </button>

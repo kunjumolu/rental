@@ -1,5 +1,17 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Eye, Pencil, Trash2, Plus } from "lucide-react";
+import {
+  Eye,
+  Pencil,
+  Trash2,
+  Plus,
+  Search,
+  Building2,
+  Mail,
+  Phone,
+  MapPin,
+  User,
+  X,
+} from "lucide-react";
 
 export default function Vendors() {
   const [vendors, setVendors] = useState([]);
@@ -73,6 +85,7 @@ export default function Vendors() {
   const filteredVendors = useMemo(() => {
     return vendors.filter((vendor) => {
       const search = searchTerm.toLowerCase();
+
       return (
         vendor.name?.toLowerCase().includes(search) ||
         vendor.email?.toLowerCase().includes(search) ||
@@ -84,6 +97,7 @@ export default function Vendors() {
 
   const handleView = async (vendor) => {
     const fullVendor = await fetchVendorById(vendor.id);
+
     if (fullVendor) {
       setSelectedVendor(fullVendor);
       setIsViewOpen(true);
@@ -92,6 +106,7 @@ export default function Vendors() {
 
   const handleEdit = async (vendor) => {
     const fullVendor = await fetchVendorById(vendor.id);
+
     if (fullVendor) {
       setSelectedVendor(fullVendor);
       setIsEditOpen(true);
@@ -107,54 +122,98 @@ export default function Vendors() {
     <>
       <div
         style={{
-          background: "#fff",
+          background: "#ffffff",
           border: "1px solid #e5e7eb",
-          borderRadius: "12px",
+          borderRadius: "18px",
           overflow: "hidden",
+          boxShadow: "0 4px 20px rgba(0,0,0,0.04)",
         }}
       >
+        {/* Header */}
         <div
           style={{
-            padding: "20px 24px",
-            borderBottom: "1px solid #e5e7eb",
+            padding: "24px",
+            borderBottom: "1px solid #f1f5f9",
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
             gap: "16px",
+            flexWrap: "wrap",
           }}
         >
           <div>
-            <h3 style={{ fontSize: "16px", fontWeight: 600, color: "#111827", margin: 0 }}>
+            <h3
+              style={{
+                fontSize: "20px",
+                fontWeight: 700,
+                color: "#111827",
+                margin: 0,
+              }}
+            >
               Vendors
             </h3>
-            <p style={{ fontSize: "13px", color: "#6b7280", marginTop: "4px" }}>
+
+            <p
+              style={{
+                fontSize: "13px",
+                color: "#6b7280",
+                marginTop: "6px",
+              }}
+            >
               Manage supplier and vendor records
             </p>
           </div>
 
-          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-            <input
-              type="text"
-              placeholder="Search vendors..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "12px",
+              flexWrap: "wrap",
+            }}
+          >
+            {/* Search */}
+            <div
               style={{
-                height: "40px",
-                width: "240px",
-                border: "1px solid #d1d5db",
-                borderRadius: "10px",
-                padding: "0 14px",
-                fontSize: "14px",
-                outline: "none",
+                position: "relative",
               }}
-            />
+            >
+              <Search
+                size={16}
+                style={{
+                  position: "absolute",
+                  top: "50%",
+                  left: "14px",
+                  transform: "translateY(-50%)",
+                  color: "#9ca3af",
+                }}
+              />
 
+              <input
+                type="text"
+                placeholder="Search vendors..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                style={{
+                  height: "42px",
+                  width: "260px",
+                  border: "1px solid #d1d5db",
+                  borderRadius: "12px",
+                  padding: "0 14px 0 40px",
+                  fontSize: "14px",
+                  outline: "none",
+                  background: "#fff",
+                }}
+              />
+            </div>
+
+            {/* Add Button */}
             <button
               onClick={() => setIsNewOpen(true)}
               style={{
-                height: "40px",
-                padding: "0 14px",
-                borderRadius: "10px",
+                height: "42px",
+                padding: "0 16px",
+                borderRadius: "12px",
                 background: "#2563eb",
                 color: "#fff",
                 border: "none",
@@ -164,6 +223,7 @@ export default function Vendors() {
                 alignItems: "center",
                 gap: "8px",
                 cursor: "pointer",
+                boxShadow: "0 8px 20px rgba(37,99,235,0.25)",
               }}
             >
               <Plus size={16} />
@@ -172,25 +232,54 @@ export default function Vendors() {
           </div>
         </div>
 
+        {/* Content */}
         {loading ? (
-          <div style={{ padding: "24px", color: "#6b7280", fontSize: "14px" }}>
+          <div
+            style={{
+              padding: "32px",
+              fontSize: "14px",
+              color: "#6b7280",
+            }}
+          >
             Loading vendors...
           </div>
         ) : error ? (
-          <div style={{ padding: "24px", color: "red", fontSize: "14px" }}>
+          <div
+            style={{
+              padding: "32px",
+              color: "#ef4444",
+              fontSize: "14px",
+            }}
+          >
             {error}
           </div>
         ) : filteredVendors.length === 0 ? (
-          <div style={{ padding: "24px", color: "#6b7280", fontSize: "14px" }}>
+          <div
+            style={{
+              padding: "32px",
+              color: "#6b7280",
+              fontSize: "14px",
+            }}
+          >
             No vendors found.
           </div>
         ) : (
           <div style={{ overflowX: "auto" }}>
-            <table style={{ width: "100%", borderCollapse: "collapse" }}>
+            <table
+              style={{
+                width: "100%",
+                borderCollapse: "collapse",
+              }}
+            >
               <thead>
-                <tr style={{ borderBottom: "1px solid #e5e7eb" }}>
+                <tr
+                  style={{
+                    background: "#f8fafc",
+                    borderBottom: "1px solid #e5e7eb",
+                  }}
+                >
                   <th style={headerCell}>Vendor</th>
-                  <th style={headerCell}>Contact Person</th>
+                  <th style={headerCell}>Contact</th>
                   <th style={headerCell}>Email</th>
                   <th style={headerCell}>Phone</th>
                   <th style={headerCell}>Address</th>
@@ -204,25 +293,166 @@ export default function Vendors() {
                     key={vendor.id}
                     style={{
                       borderBottom: "1px solid #f3f4f6",
-                      background: index % 2 === 0 ? "#fff" : "#fafafa",
+                      background: index % 2 === 0 ? "#fff" : "#fcfcfd",
+                      transition: "0.2s ease",
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = "#f8fbff";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background =
+                        index % 2 === 0 ? "#fff" : "#fcfcfd";
                     }}
                   >
-                    <td style={{ ...bodyCell, fontWeight: 600, color: "#111827" }}>
-                      {vendor.name}
-                    </td>
-                    <td style={bodyCell}>{vendor.contact_person || "-"}</td>
-                    <td style={bodyCell}>{vendor.email || "-"}</td>
-                    <td style={bodyCell}>{vendor.phone || "-"}</td>
-                    <td style={bodyCell}>{vendor.address || "-"}</td>
+                    {/* Vendor */}
                     <td style={bodyCell}>
-                      <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                        <button onClick={() => handleView(vendor)} style={iconBtn}>
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "12px",
+                        }}
+                      >
+                        <div
+                          style={{
+                            width: "42px",
+                            height: "42px",
+                            borderRadius: "12px",
+                            background: "#eff6ff",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                          }}
+                        >
+                          <Building2 size={18} color="#2563eb" />
+                        </div>
+
+                        <div>
+                          <div
+                            style={{
+                              fontSize: "14px",
+                              fontWeight: 600,
+                              color: "#111827",
+                            }}
+                          >
+                            {vendor.name}
+                          </div>
+
+                          <div
+                            style={{
+                              fontSize: "12px",
+                              color: "#9ca3af",
+                              marginTop: "2px",
+                            }}
+                          >
+                            Vendor ID #{vendor.id}
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+
+                    {/* Contact */}
+                    <td style={bodyCell}>
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "8px",
+                        }}
+                      >
+                        <User size={14} color="#9ca3af" />
+
+                        <span>{vendor.contact_person || "-"}</span>
+                      </div>
+                    </td>
+
+                    {/* Email */}
+                    <td style={bodyCell}>
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "8px",
+                        }}
+                      >
+                        <Mail size={14} color="#9ca3af" />
+
+                        <span>{vendor.email || "-"}</span>
+                      </div>
+                    </td>
+
+                    {/* Phone */}
+                    <td style={bodyCell}>
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "8px",
+                        }}
+                      >
+                        <Phone size={14} color="#9ca3af" />
+
+                        <span>{vendor.phone || "-"}</span>
+                      </div>
+                    </td>
+
+                    {/* Address */}
+                    <td style={bodyCell}>
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "flex-start",
+                          gap: "8px",
+                          maxWidth: "240px",
+                        }}
+                      >
+                        <MapPin
+                          size={14}
+                          color="#9ca3af"
+                          style={{ marginTop: "2px" }}
+                        />
+
+                        <span
+                          style={{
+                            lineHeight: 1.5,
+                          }}
+                        >
+                          {vendor.address || "-"}
+                        </span>
+                      </div>
+                    </td>
+
+                    {/* Actions */}
+                    <td style={bodyCell}>
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "10px",
+                        }}
+                      >
+                        <button
+                          onClick={() => handleView(vendor)}
+                          style={iconBtn}
+                        >
                           <Eye size={16} />
                         </button>
-                        <button onClick={() => handleEdit(vendor)} style={iconBtn}>
+
+                        <button
+                          onClick={() => handleEdit(vendor)}
+                          style={iconBtn}
+                        >
                           <Pencil size={16} />
                         </button>
-                        <button onClick={() => handleDelete(vendor)} style={{ ...iconBtn, color: "#ef4444" }}>
+
+                        <button
+                          onClick={() => handleDelete(vendor)}
+                          style={{
+                            ...iconBtn,
+                            color: "#ef4444",
+                            background: "#fef2f2",
+                          }}
+                        >
                           <Trash2 size={16} />
                         </button>
                       </div>
@@ -235,6 +465,7 @@ export default function Vendors() {
         )}
       </div>
 
+      {/* Modals */}
       <NewVendorModal
         isOpen={isNewOpen}
         onClose={() => setIsNewOpen(false)}
@@ -275,6 +506,10 @@ export default function Vendors() {
   );
 }
 
+/* ===========================
+   CREATE MODAL
+=========================== */
+
 function NewVendorModal({ isOpen, onClose, onCreated }) {
   const [formData, setFormData] = useState({
     name: "",
@@ -283,6 +518,7 @@ function NewVendorModal({ isOpen, onClose, onCreated }) {
     address: "",
     contact_person: "",
   });
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -322,41 +558,140 @@ function NewVendorModal({ isOpen, onClose, onCreated }) {
   };
 
   return (
-    <ModalWrapper title="Create New Vendor" onClose={onClose}>
+    <ModalWrapper title="Create Vendor" onClose={onClose}>
       <form onSubmit={handleSubmit}>
-        <ModalField label="Vendor Name" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} />
-        <ModalField label="Contact Person" value={formData.contact_person} onChange={(e) => setFormData({ ...formData, contact_person: e.target.value })} />
-        <ModalField label="Email" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} />
-        <ModalField label="Phone" value={formData.phone} onChange={(e) => setFormData({ ...formData, phone: e.target.value })} />
-        <ModalField label="Address" value={formData.address} onChange={(e) => setFormData({ ...formData, address: e.target.value })} />
+        <ModalField
+          label="Vendor Name"
+          value={formData.name}
+          onChange={(e) =>
+            setFormData({
+              ...formData,
+              name: e.target.value,
+            })
+          }
+        />
 
-        {error && <p style={{ color: "red", fontSize: "13px" }}>{error}</p>}
+        <ModalField
+          label="Contact Person"
+          value={formData.contact_person}
+          onChange={(e) =>
+            setFormData({
+              ...formData,
+              contact_person: e.target.value,
+            })
+          }
+        />
 
-        <ModalActions onClose={onClose} loading={loading} submitText="Create Vendor" />
+        <ModalField
+          label="Email"
+          type="email"
+          value={formData.email}
+          onChange={(e) =>
+            setFormData({
+              ...formData,
+              email: e.target.value,
+            })
+          }
+        />
+
+        <ModalField
+          label="Phone"
+          value={formData.phone}
+          onChange={(e) =>
+            setFormData({
+              ...formData,
+              phone: e.target.value,
+            })
+          }
+        />
+
+        <ModalField
+          label="Address"
+          value={formData.address}
+          onChange={(e) =>
+            setFormData({
+              ...formData,
+              address: e.target.value,
+            })
+          }
+        />
+
+        {error && (
+          <p
+            style={{
+              color: "#ef4444",
+              fontSize: "13px",
+            }}
+          >
+            {error}
+          </p>
+        )}
+
+        <ModalActions
+          onClose={onClose}
+          loading={loading}
+          submitText="Create Vendor"
+        />
       </form>
     </ModalWrapper>
   );
 }
+
+/* ===========================
+   VIEW MODAL
+=========================== */
 
 function ViewVendorModal({ isOpen, onClose, vendor }) {
   if (!isOpen || !vendor) return null;
 
   return (
     <ModalWrapper title="Vendor Details" onClose={onClose}>
-      <div style={detailsBox}><strong>Name:</strong> {vendor.name}</div>
-      <div style={detailsBox}><strong>Contact Person:</strong> {vendor.contact_person || "-"}</div>
-      <div style={detailsBox}><strong>Email:</strong> {vendor.email || "-"}</div>
-      <div style={detailsBox}><strong>Phone:</strong> {vendor.phone || "-"}</div>
-      <div style={detailsBox}><strong>Address:</strong> {vendor.address || "-"}</div>
+      <div style={detailsBox}>
+        <strong>Name:</strong> {vendor.name}
+      </div>
 
-      <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "20px" }}>
-        <button onClick={onClose} style={secondaryBtn}>Close</button>
+      <div style={detailsBox}>
+        <strong>Contact Person:</strong>{" "}
+        {vendor.contact_person || "-"}
+      </div>
+
+      <div style={detailsBox}>
+        <strong>Email:</strong> {vendor.email || "-"}
+      </div>
+
+      <div style={detailsBox}>
+        <strong>Phone:</strong> {vendor.phone || "-"}
+      </div>
+
+      <div style={detailsBox}>
+        <strong>Address:</strong> {vendor.address || "-"}
+      </div>
+
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "flex-end",
+          marginTop: "24px",
+        }}
+      >
+        <button onClick={onClose} style={secondaryBtn}>
+          Close
+        </button>
       </div>
     </ModalWrapper>
   );
 }
 
-function EditVendorModal({ isOpen, onClose, vendor, onUpdated }) {
+/* ===========================
+   EDIT MODAL
+=========================== */
+
+function EditVendorModal({
+  isOpen,
+  onClose,
+  vendor,
+  onUpdated,
+}) {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -364,6 +699,7 @@ function EditVendorModal({ isOpen, onClose, vendor, onUpdated }) {
     address: "",
     contact_person: "",
   });
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -390,14 +726,17 @@ function EditVendorModal({ isOpen, onClose, vendor, onUpdated }) {
 
       const token = localStorage.getItem("token");
 
-      const res = await fetch(`http://localhost:5000/api/vendors/${vendor.id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(formData),
-      });
+      const res = await fetch(
+        `http://localhost:5000/api/vendors/${vendor.id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(formData),
+        }
+      );
 
       const data = await res.json();
 
@@ -417,21 +756,93 @@ function EditVendorModal({ isOpen, onClose, vendor, onUpdated }) {
   return (
     <ModalWrapper title="Edit Vendor" onClose={onClose}>
       <form onSubmit={handleSubmit}>
-        <ModalField label="Vendor Name" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} />
-        <ModalField label="Contact Person" value={formData.contact_person} onChange={(e) => setFormData({ ...formData, contact_person: e.target.value })} />
-        <ModalField label="Email" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} />
-        <ModalField label="Phone" value={formData.phone} onChange={(e) => setFormData({ ...formData, phone: e.target.value })} />
-        <ModalField label="Address" value={formData.address} onChange={(e) => setFormData({ ...formData, address: e.target.value })} />
+        <ModalField
+          label="Vendor Name"
+          value={formData.name}
+          onChange={(e) =>
+            setFormData({
+              ...formData,
+              name: e.target.value,
+            })
+          }
+        />
 
-        {error && <p style={{ color: "red", fontSize: "13px" }}>{error}</p>}
+        <ModalField
+          label="Contact Person"
+          value={formData.contact_person}
+          onChange={(e) =>
+            setFormData({
+              ...formData,
+              contact_person: e.target.value,
+            })
+          }
+        />
 
-        <ModalActions onClose={onClose} loading={loading} submitText="Update Vendor" />
+        <ModalField
+          label="Email"
+          type="email"
+          value={formData.email}
+          onChange={(e) =>
+            setFormData({
+              ...formData,
+              email: e.target.value,
+            })
+          }
+        />
+
+        <ModalField
+          label="Phone"
+          value={formData.phone}
+          onChange={(e) =>
+            setFormData({
+              ...formData,
+              phone: e.target.value,
+            })
+          }
+        />
+
+        <ModalField
+          label="Address"
+          value={formData.address}
+          onChange={(e) =>
+            setFormData({
+              ...formData,
+              address: e.target.value,
+            })
+          }
+        />
+
+        {error && (
+          <p
+            style={{
+              color: "#ef4444",
+              fontSize: "13px",
+            }}
+          >
+            {error}
+          </p>
+        )}
+
+        <ModalActions
+          onClose={onClose}
+          loading={loading}
+          submitText="Update Vendor"
+        />
       </form>
     </ModalWrapper>
   );
 }
 
-function DeleteVendorModal({ isOpen, onClose, vendor, onDeleted }) {
+/* ===========================
+   DELETE MODAL
+=========================== */
+
+function DeleteVendorModal({
+  isOpen,
+  onClose,
+  vendor,
+  onDeleted,
+}) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -444,12 +855,15 @@ function DeleteVendorModal({ isOpen, onClose, vendor, onDeleted }) {
 
       const token = localStorage.getItem("token");
 
-      const res = await fetch(`http://localhost:5000/api/vendors/${vendor.id}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const res = await fetch(
+        `http://localhost:5000/api/vendors/${vendor.id}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
       const data = await res.json();
 
@@ -468,17 +882,47 @@ function DeleteVendorModal({ isOpen, onClose, vendor, onDeleted }) {
 
   return (
     <ModalWrapper title="Delete Vendor" onClose={onClose}>
-      <p style={{ fontSize: "14px", color: "#6b7280", marginBottom: "16px" }}>
-        Are you sure you want to delete <strong>{vendor.name}</strong>?
+      <p
+        style={{
+          fontSize: "14px",
+          color: "#6b7280",
+          lineHeight: 1.6,
+        }}
+      >
+        Are you sure you want to delete{" "}
+        <strong>{vendor.name}</strong>?
       </p>
 
-      {error && <p style={{ color: "red", fontSize: "13px" }}>{error}</p>}
+      {error && (
+        <p
+          style={{
+            color: "#ef4444",
+            fontSize: "13px",
+            marginTop: "12px",
+          }}
+        >
+          {error}
+        </p>
+      )}
 
-      <div style={{ display: "flex", justifyContent: "flex-end", gap: "12px" }}>
-        <button onClick={onClose} style={secondaryBtn}>Cancel</button>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "flex-end",
+          gap: "12px",
+          marginTop: "24px",
+        }}
+      >
+        <button onClick={onClose} style={secondaryBtn}>
+          Cancel
+        </button>
+
         <button
           onClick={handleDelete}
-          style={{ ...primaryBtn, background: "#dc2626" }}
+          style={{
+            ...primaryBtn,
+            background: "#dc2626",
+          }}
           disabled={loading}
         >
           {loading ? "Deleting..." : "Delete"}
@@ -488,67 +932,138 @@ function DeleteVendorModal({ isOpen, onClose, vendor, onDeleted }) {
   );
 }
 
+/* ===========================
+   SHARED COMPONENTS
+=========================== */
+
 function ModalWrapper({ title, onClose, children }) {
   return (
     <div style={overlay}>
       <div style={modal}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
-          <h2 style={{ fontSize: "20px", fontWeight: 700, color: "#111827", margin: 0 }}>{title}</h2>
-          <button onClick={onClose} style={{ background: "none", border: "none", fontSize: "24px", cursor: "pointer", color: "#6b7280" }}>
-            ×
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            marginBottom: "24px",
+          }}
+        >
+          <h2
+            style={{
+              fontSize: "20px",
+              fontWeight: 700,
+              color: "#111827",
+              margin: 0,
+            }}
+          >
+            {title}
+          </h2>
+
+          <button
+            onClick={onClose}
+            style={{
+              width: "36px",
+              height: "36px",
+              borderRadius: "10px",
+              border: "none",
+              background: "#f3f4f6",
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <X size={18} color="#6b7280" />
           </button>
         </div>
+
         {children}
       </div>
     </div>
   );
 }
 
-function ModalField({ label, value, onChange }) {
+function ModalField({
+  label,
+  value,
+  onChange,
+  type = "text",
+}) {
   return (
-    <div style={{ marginBottom: "14px" }}>
+    <div style={{ marginBottom: "16px" }}>
       <label style={labelStyle}>{label}</label>
-      <input type="text" value={value} onChange={onChange} style={inputStyle} />
+
+      <input
+        type={type}
+        value={value}
+        onChange={onChange}
+        style={inputStyle}
+      />
     </div>
   );
 }
 
-function ModalActions({ onClose, loading, submitText }) {
+function ModalActions({
+  onClose,
+  loading,
+  submitText,
+}) {
   return (
-    <div style={{ display: "flex", justifyContent: "flex-end", gap: "12px", marginTop: "20px" }}>
-      <button type="button" onClick={onClose} style={secondaryBtn}>
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "flex-end",
+        gap: "12px",
+        marginTop: "24px",
+      }}
+    >
+      <button
+        type="button"
+        onClick={onClose}
+        style={secondaryBtn}
+      >
         Cancel
       </button>
-      <button type="submit" style={primaryBtn} disabled={loading}>
+
+      <button
+        type="submit"
+        style={primaryBtn}
+        disabled={loading}
+      >
         {loading ? "Saving..." : submitText}
       </button>
     </div>
   );
 }
 
+/* ===========================
+   STYLES
+=========================== */
+
 const overlay = {
   position: "fixed",
   inset: 0,
-  background: "rgba(0,0,0,0.5)",
+  background: "rgba(15,23,42,0.55)",
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
   zIndex: 999,
-  padding: "16px",
+  padding: "20px",
+  backdropFilter: "blur(4px)",
 };
 
 const modal = {
   width: "100%",
-  maxWidth: "520px",
-  background: "#fff",
-  borderRadius: "14px",
-  padding: "24px",
-  boxShadow: "0 20px 50px rgba(0,0,0,0.15)",
+  maxWidth: "560px",
+  background: "#ffffff",
+  borderRadius: "22px",
+  padding: "28px",
+  boxShadow: "0 25px 60px rgba(0,0,0,0.18)",
 };
 
 const labelStyle = {
   display: "block",
-  marginBottom: "6px",
+  marginBottom: "8px",
   fontSize: "13px",
   fontWeight: 600,
   color: "#374151",
@@ -556,66 +1071,73 @@ const labelStyle = {
 
 const inputStyle = {
   width: "100%",
-  height: "42px",
-  borderRadius: "10px",
+  height: "46px",
+  borderRadius: "12px",
   border: "1px solid #d1d5db",
-  padding: "0 12px",
+  padding: "0 14px",
   fontSize: "14px",
   outline: "none",
+  background: "#fff",
+  boxSizing: "border-box",
 };
 
 const primaryBtn = {
-  height: "40px",
-  padding: "0 16px",
-  borderRadius: "10px",
+  height: "42px",
+  padding: "0 18px",
+  borderRadius: "12px",
   border: "none",
   background: "#2563eb",
-  color: "#fff",
+  color: "#ffffff",
   fontWeight: 600,
   cursor: "pointer",
 };
 
 const secondaryBtn = {
-  height: "40px",
-  padding: "0 16px",
-  borderRadius: "10px",
+  height: "42px",
+  padding: "0 18px",
+  borderRadius: "12px",
   border: "1px solid #d1d5db",
-  background: "#fff",
+  background: "#ffffff",
   color: "#111827",
-  fontWeight: 500,
+  fontWeight: 600,
   cursor: "pointer",
 };
 
 const detailsBox = {
-  padding: "12px 14px",
+  padding: "14px 16px",
   background: "#f9fafb",
   border: "1px solid #e5e7eb",
-  borderRadius: "10px",
-  marginBottom: "10px",
+  borderRadius: "12px",
+  marginBottom: "12px",
   fontSize: "14px",
   color: "#374151",
 };
 
 const headerCell = {
   textAlign: "left",
-  padding: "14px 16px",
-  fontSize: "13px",
-  fontWeight: 600,
+  padding: "16px 18px",
+  fontSize: "12px",
+  fontWeight: 700,
   color: "#6b7280",
-  background: "#fff",
+  textTransform: "uppercase",
+  letterSpacing: "0.04em",
 };
 
 const bodyCell = {
-  padding: "14px 16px",
+  padding: "18px",
   fontSize: "14px",
   color: "#374151",
+  verticalAlign: "middle",
 };
 
 const iconBtn = {
-  background: "none",
+  width: "34px",
+  height: "34px",
+  borderRadius: "10px",
   border: "none",
+  background: "#f3f4f6",
   cursor: "pointer",
-  color: "#111827",
+  color: "#374151",
   display: "flex",
   alignItems: "center",
   justifyContent: "center",

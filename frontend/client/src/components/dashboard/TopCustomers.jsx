@@ -1,18 +1,11 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 
-const colors = [
-  "#3b82f6",
-  "#10b981",
-  "#f59e0b",
-  "#6366f1",
-  "#ec4899",
-];
+const colors = ["#3b82f6", "#10b981", "#f59e0b", "#6366f1", "#ec4899"];
 
-export default function TopCustomers({
-  customers = [],
-  onViewAll,
-}) {
-  // SAFE DATA FILTER
+export default function TopCustomers({ customers = [], onViewAll }) {
+  const navigate = useNavigate();
+
   const validCustomers = customers.filter(
     (c) =>
       c &&
@@ -21,57 +14,31 @@ export default function TopCustomers({
       Number(c.revenue || 0) >= 0
   );
 
-  // GET INITIALS
   const getInitials = (name) => {
     if (!name) return "NA";
-
     const parts = name.trim().split(" ");
-
     if (parts.length === 1) {
       return parts[0].slice(0, 2).toUpperCase();
     }
-
     return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
   };
 
+  const handleCustomerClick = (customer) => {
+    if (customer.id || customer.name) {
+      navigate("/customers", { state: { searchCustomer: customer.name } });
+    }
+  };
+
   return (
-    <div
-      style={{
-        background: "#fff",
-        border: "1px solid #e5e7eb",
-        borderRadius: "12px",
-        padding: "24px",
-      }}
-    >
+    <div className="bg-white border border-gray-200 rounded-xl p-4 sm:p-6">
       {/* HEADER */}
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginBottom: "20px",
-        }}
-      >
-        <h3
-          style={{
-            fontSize: "16px",
-            fontWeight: 600,
-            color: "#111827",
-          }}
-        >
+      <div className="flex justify-between items-center mb-4">
+        <h3 className="text-sm sm:text-base font-semibold text-gray-900">
           Top Customers
         </h3>
-
         <button
           onClick={onViewAll}
-          style={{
-            fontSize: "13px",
-            color: "#3b82f6",
-            background: "none",
-            border: "none",
-            cursor: "pointer",
-            fontWeight: 500,
-          }}
+          className="text-xs sm:text-[13px] text-blue-500 bg-transparent border-none cursor-pointer font-medium"
         >
           View All
         </button>
@@ -79,90 +46,30 @@ export default function TopCustomers({
 
       {/* EMPTY STATE */}
       {validCustomers.length === 0 ? (
-        <div
-          style={{
-            padding: "30px 0",
-            textAlign: "center",
-            color: "#9ca3af",
-            fontSize: "14px",
-          }}
-        >
+        <div className="py-8 text-center text-gray-400 text-xs sm:text-sm">
           No top customers available
         </div>
       ) : (
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns:
-              "repeat(auto-fit, minmax(170px, 1fr))",
-            gap: "18px",
-          }}
-        >
+        <div className="grid grid-cols-1 sm:grid-cols-[repeat(auto-fit,minmax(140px,1fr))] md:grid-cols-[repeat(auto-fit,minmax(150px,1fr))] lg:grid-cols-[repeat(auto-fit,minmax(170px,1fr))] gap-3 sm:gap-4">
           {validCustomers.map((c, index) => (
             <div
               key={c.id || index}
-              style={{
-                border: "1px solid #f3f4f6",
-                borderRadius: "12px",
-                padding: "16px",
-                background: "#fff",
-                transition: "0.2s",
-              }}
+              onClick={() => handleCustomerClick(c)}
+              className="border border-gray-100 rounded-xl p-3 sm:p-4 bg-white transition cursor-pointer hover:border-blue-300 hover:shadow-md hover:bg-blue-50/30 active:scale-[0.98]"
             >
               {/* CUSTOMER INFO */}
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "10px",
-                  marginBottom: "14px",
-                }}
-              >
+              <div className="flex items-center gap-2.5 mb-3">
                 <div
-                  style={{
-                    width: "38px",
-                    height: "38px",
-                    borderRadius: "10px",
-                    background:
-                      colors[index % colors.length],
-                    color: "#fff",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    fontSize: "13px",
-                    fontWeight: 700,
-                    flexShrink: 0,
-                  }}
+                  className="w-8 h-8 sm:w-[38px] sm:h-[38px] rounded-[10px] text-white flex items-center justify-center text-[11px] sm:text-[13px] font-bold shrink-0"
+                  style={{ background: colors[index % colors.length] }}
                 >
                   {getInitials(c.name)}
                 </div>
-
-                <div
-                  style={{
-                    minWidth: 0,
-                    flex: 1,
-                  }}
-                >
-                  <div
-                    style={{
-                      fontSize: "14px",
-                      fontWeight: 600,
-                      color: "#111827",
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                      whiteSpace: "nowrap",
-                    }}
-                  >
+                <div className="min-w-0 flex-1">
+                  <div className="text-xs sm:text-sm font-semibold text-gray-900 truncate">
                     {c.name}
                   </div>
-
-                  <div
-                    style={{
-                      fontSize: "11px",
-                      color: "#9ca3af",
-                      marginTop: "2px",
-                    }}
-                  >
+                  <div className="text-[11px] text-gray-400 mt-0.5">
                     Top customer
                   </div>
                 </div>
@@ -170,23 +77,10 @@ export default function TopCustomers({
 
               {/* REVENUE */}
               <div>
-                <div
-                  style={{
-                    fontSize: "22px",
-                    fontWeight: 700,
-                    color: "#111827",
-                  }}
-                >
+                <div className="text-lg sm:text-[22px] font-bold text-gray-900">
                   ₹{Number(c.revenue || 0).toLocaleString()}
                 </div>
-
-                <div
-                  style={{
-                    fontSize: "12px",
-                    color: "#9ca3af",
-                    marginTop: "4px",
-                  }}
-                >
+                <div className="text-xs text-gray-400 mt-1">
                   Lifetime revenue
                 </div>
               </div>
