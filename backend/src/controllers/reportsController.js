@@ -1,6 +1,6 @@
 const db = require('../../config/db');
 
-const getDateFilter = (period, from, to) => {
+const getDateFilter = (period) => {
   switch (period) {
     case 'today':
       return {
@@ -9,26 +9,12 @@ const getDateFilter = (period, from, to) => {
         expenseFilter: `AND DATE(date) = CURRENT_DATE`,
         billFilter: `AND DATE(created_at) = CURRENT_DATE`,
       };
-    case 'yesterday':
-      return {
-        invoiceFilter: `AND DATE(issue_date) = CURRENT_DATE - INTERVAL '1 day'`,
-        rentalFilter: `AND DATE(created_at) = CURRENT_DATE - INTERVAL '1 day'`,
-        expenseFilter: `AND DATE(date) = CURRENT_DATE - INTERVAL '1 day'`,
-        billFilter: `AND DATE(created_at) = CURRENT_DATE - INTERVAL '1 day'`,
-      };
     case 'week':
       return {
         invoiceFilter: `AND issue_date >= DATE_TRUNC('week', CURRENT_DATE)`,
         rentalFilter: `AND created_at >= DATE_TRUNC('week', CURRENT_DATE)`,
         expenseFilter: `AND date >= DATE_TRUNC('week', CURRENT_DATE)`,
         billFilter: `AND created_at >= DATE_TRUNC('week', CURRENT_DATE)`,
-      };
-    case 'prev_week':
-      return {
-        invoiceFilter: `AND issue_date >= DATE_TRUNC('week', CURRENT_DATE) - INTERVAL '1 week' AND issue_date < DATE_TRUNC('week', CURRENT_DATE)`,
-        rentalFilter: `AND created_at >= DATE_TRUNC('week', CURRENT_DATE) - INTERVAL '1 week' AND created_at < DATE_TRUNC('week', CURRENT_DATE)`,
-        expenseFilter: `AND date >= DATE_TRUNC('week', CURRENT_DATE) - INTERVAL '1 week' AND date < DATE_TRUNC('week', CURRENT_DATE)`,
-        billFilter: `AND created_at >= DATE_TRUNC('week', CURRENT_DATE) - INTERVAL '1 week' AND created_at < DATE_TRUNC('week', CURRENT_DATE)`,
       };
     case 'month':
       return {
@@ -37,26 +23,12 @@ const getDateFilter = (period, from, to) => {
         expenseFilter: `AND date >= DATE_TRUNC('month', CURRENT_DATE)`,
         billFilter: `AND created_at >= DATE_TRUNC('month', CURRENT_DATE)`,
       };
-    case 'prev_month':
-      return {
-        invoiceFilter: `AND issue_date >= DATE_TRUNC('month', CURRENT_DATE) - INTERVAL '1 month' AND issue_date < DATE_TRUNC('month', CURRENT_DATE)`,
-        rentalFilter: `AND created_at >= DATE_TRUNC('month', CURRENT_DATE) - INTERVAL '1 month' AND created_at < DATE_TRUNC('month', CURRENT_DATE)`,
-        expenseFilter: `AND date >= DATE_TRUNC('month', CURRENT_DATE) - INTERVAL '1 month' AND date < DATE_TRUNC('month', CURRENT_DATE)`,
-        billFilter: `AND created_at >= DATE_TRUNC('month', CURRENT_DATE) - INTERVAL '1 month' AND created_at < DATE_TRUNC('month', CURRENT_DATE)`,
-      };
     case 'quarter':
       return {
         invoiceFilter: `AND issue_date >= DATE_TRUNC('quarter', CURRENT_DATE)`,
         rentalFilter: `AND created_at >= DATE_TRUNC('quarter', CURRENT_DATE)`,
         expenseFilter: `AND date >= DATE_TRUNC('quarter', CURRENT_DATE)`,
         billFilter: `AND created_at >= DATE_TRUNC('quarter', CURRENT_DATE)`,
-      };
-    case 'prev_quarter':
-      return {
-        invoiceFilter: `AND issue_date >= DATE_TRUNC('quarter', CURRENT_DATE) - INTERVAL '3 months' AND issue_date < DATE_TRUNC('quarter', CURRENT_DATE)`,
-        rentalFilter: `AND created_at >= DATE_TRUNC('quarter', CURRENT_DATE) - INTERVAL '3 months' AND created_at < DATE_TRUNC('quarter', CURRENT_DATE)`,
-        expenseFilter: `AND date >= DATE_TRUNC('quarter', CURRENT_DATE) - INTERVAL '3 months' AND date < DATE_TRUNC('quarter', CURRENT_DATE)`,
-        billFilter: `AND created_at >= DATE_TRUNC('quarter', CURRENT_DATE) - INTERVAL '3 months' AND created_at < DATE_TRUNC('quarter', CURRENT_DATE)`,
       };
     case 'year':
       return {
@@ -65,29 +37,6 @@ const getDateFilter = (period, from, to) => {
         expenseFilter: `AND date >= DATE_TRUNC('year', CURRENT_DATE)`,
         billFilter: `AND created_at >= DATE_TRUNC('year', CURRENT_DATE)`,
       };
-    case 'prev_year':
-      return {
-        invoiceFilter: `AND issue_date >= DATE_TRUNC('year', CURRENT_DATE) - INTERVAL '1 year' AND issue_date < DATE_TRUNC('year', CURRENT_DATE)`,
-        rentalFilter: `AND created_at >= DATE_TRUNC('year', CURRENT_DATE) - INTERVAL '1 year' AND created_at < DATE_TRUNC('year', CURRENT_DATE)`,
-        expenseFilter: `AND date >= DATE_TRUNC('year', CURRENT_DATE) - INTERVAL '1 year' AND date < DATE_TRUNC('year', CURRENT_DATE)`,
-        billFilter: `AND created_at >= DATE_TRUNC('year', CURRENT_DATE) - INTERVAL '1 year' AND created_at < DATE_TRUNC('year', CURRENT_DATE)`,
-      };
-    case 'custom':
-      if (from && to) {
-        return {
-          invoiceFilter: `AND DATE(issue_date) >= '${from}' AND DATE(issue_date) <= '${to}'`,
-          rentalFilter: `AND DATE(created_at) >= '${from}' AND DATE(created_at) <= '${to}'`,
-          expenseFilter: `AND DATE(date) >= '${from}' AND DATE(date) <= '${to}'`,
-          billFilter: `AND DATE(created_at) >= '${from}' AND DATE(created_at) <= '${to}'`,
-        };
-      }
-      return {
-        invoiceFilter: '',
-        rentalFilter: '',
-        expenseFilter: '',
-        billFilter: '',
-      };
-    case 'all':
     default:
       return {
         invoiceFilter: '',
@@ -98,12 +47,11 @@ const getDateFilter = (period, from, to) => {
   }
 };
 
-
 // Business Overview — P&L
 exports.getBusinessOverview = async (req, res) => {
   try {
-    const { period = 'month', from, to } = req.query;
-    const { invoiceFilter, expenseFilter } = getDateFilter(period, from, to);
+    const { period = 'month' } = req.query;
+    const { invoiceFilter, expenseFilter } = getDateFilter(period);
 
     const [revenueRes, expenseRes, rentalRes] = await Promise.all([
       db.query(`
@@ -131,7 +79,7 @@ exports.getBusinessOverview = async (req, res) => {
           COUNT(*) FILTER (WHERE status = 'overdue') AS overdue_rentals,
           COALESCE(SUM(total_amount), 0) AS total_rental_value
         FROM rentals
-        WHERE 1=1 ${expenseFilter.replace(/date/g, 'created_at')}
+        WHERE 1=1 ${expenseFilter.replace('date', 'created_at')}
       `)
     ]);
 
@@ -163,12 +111,11 @@ exports.getBusinessOverview = async (req, res) => {
   }
 };
 
-
 // Sales Report
 exports.getSalesReport = async (req, res) => {
   try {
-    const { period = 'month', from, to } = req.query;
-    const { invoiceFilter } = getDateFilter(period, from, to);
+    const { period = 'month' } = req.query;
+    const { invoiceFilter } = getDateFilter(period);
 
     const result = await db.query(`
       SELECT
@@ -203,8 +150,7 @@ exports.getSalesReport = async (req, res) => {
   }
 };
 
-
-// Receivables Report — ALWAYS LIVE (no date filter)
+// Receivables Report
 exports.getReceivablesReport = async (req, res) => {
   try {
     const result = await db.query(`
@@ -241,12 +187,11 @@ exports.getReceivablesReport = async (req, res) => {
   }
 };
 
-
 // Payments Received
 exports.getPaymentsReport = async (req, res) => {
   try {
-    const { period = 'month', from, to } = req.query;
-    const { invoiceFilter } = getDateFilter(period, from, to);
+    const { period = 'month' } = req.query;
+    const { invoiceFilter } = getDateFilter(period);
 
     const result = await db.query(`
       SELECT
@@ -280,8 +225,7 @@ exports.getPaymentsReport = async (req, res) => {
   }
 };
 
-
-// Payables Report — ALWAYS LIVE (no date filter)
+// Payables Report
 exports.getPayablesReport = async (req, res) => {
   try {
     const result = await db.query(`
@@ -316,12 +260,11 @@ exports.getPayablesReport = async (req, res) => {
   }
 };
 
-
 // Expenses Report
 exports.getExpensesReport = async (req, res) => {
   try {
-    const { period = 'month', from, to } = req.query;
-    const { expenseFilter } = getDateFilter(period, from, to);
+    const { period = 'month' } = req.query;
+    const { expenseFilter } = getDateFilter(period);
 
     const result = await db.query(`
       SELECT
@@ -363,15 +306,9 @@ exports.getExpensesReport = async (req, res) => {
   }
 };
 
-
-// Inventory Report — Date filtered by created_at
+// Inventory Report
 exports.getInventoryReport = async (req, res) => {
   try {
-    const { period = 'month', from, to } = req.query;
-    const filters = getDateFilter(period, from, to);
-    // Use rentalFilter (which uses created_at) and replace with ii.created_at
-    const inventoryFilter = filters.rentalFilter.replace(/created_at/g, 'ii.created_at');
-
     const result = await db.query(`
       SELECT
         ii.name,
@@ -384,16 +321,14 @@ exports.getInventoryReport = async (req, res) => {
         ii.status,
         ii.daily_rate,
         ii.cost_price,
-        ii.created_at,
         COALESCE(SUM(ri.subtotal), 0) AS total_revenue,
         COUNT(DISTINCT ri.rental_id) AS rental_count
       FROM inventory_items ii
       LEFT JOIN rental_items ri ON ri.inventory_item_id = ii.id
-      WHERE 1=1 ${inventoryFilter}
       GROUP BY ii.id, ii.name, ii.sku, ii.category,
                ii.total_quantity, ii.available_quantity,
                ii.rented_quantity, ii.maintenance_quantity,
-               ii.status, ii.daily_rate, ii.cost_price, ii.created_at
+               ii.status, ii.daily_rate, ii.cost_price
       ORDER BY total_revenue DESC
     `);
 
@@ -417,11 +352,12 @@ exports.getInventoryReport = async (req, res) => {
   }
 };
 
-
-// Customers Report — Date filtered by created_at
-// Customers Report — ALWAYS LIVE (no date filter)
+// Customers Report
 exports.getCustomersReport = async (req, res) => {
   try {
+    const { period = 'month' } = req.query;
+    const { invoiceFilter, rentalFilter } = getDateFilter(period);
+
     const result = await db.query(`
       SELECT
         c.id,
@@ -458,12 +394,11 @@ exports.getCustomersReport = async (req, res) => {
   }
 };
 
-
 // Rentals Report
 exports.getRentalsReport = async (req, res) => {
   try {
-    const { period = 'month', from, to } = req.query;
-    const { rentalFilter } = getDateFilter(period, from, to);
+    const { period = 'month' } = req.query;
+    const { rentalFilter } = getDateFilter(period);
 
     const result = await db.query(`
       SELECT
