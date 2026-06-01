@@ -2,7 +2,7 @@
 
 exports.up = (pgm) => {
   pgm.createTable('password_reset_tokens', {
-    id: 'id',
+    id:         'id',
     user_id:    { type: 'integer', notNull: true, references: '"users"', onDelete: 'CASCADE' },
     token:      { type: 'varchar(255)', notNull: true, unique: true },
     expires_at: { type: 'timestamp', notNull: true },
@@ -11,6 +11,8 @@ exports.up = (pgm) => {
   });
 
   pgm.createIndex('password_reset_tokens', 'token');
+  pgm.createIndex('password_reset_tokens', 'user_id');
+  pgm.createIndex('password_reset_tokens', 'expires_at');
 };
 
 exports.down = (pgm) => {
