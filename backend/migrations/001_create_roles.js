@@ -5,12 +5,13 @@ exports.up = (pgm) => {
     id: 'id',
     name: { type: 'varchar(50)', notNull: true, unique: true },
     permissions: { type: 'jsonb' },
-    created_at: { type: 'timestamp', default: pgm.func('current_timestamp') },
+    created_at: { type: 'timestamp', notNull: true, default: pgm.func('current_timestamp') },
   });
 
-  // Seed default roles — ON CONFLICT DO NOTHING prevents duplicate errors
+  // Seed default roles
   pgm.sql(`
-    INSERT INTO roles (name) VALUES ('admin'), ('manager'), ('staff')
+    INSERT INTO roles (name) VALUES
+      ('admin'), ('manager'), ('staff')
     ON CONFLICT (name) DO NOTHING;
   `);
 };
