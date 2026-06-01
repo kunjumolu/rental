@@ -3,67 +3,20 @@
 // ============================================================
 // Initial schema
 //
-// Creates:
-//   1. roles table (admin, manager, staff)
-//   2. users table with:
-//      - email, password_hash, full_name, is_active
-//      - role_id (FK → roles)
-//      - created_at
+// NOTE: roles and users tables are already created by:
+//   - 1700000000017_create_roles.js
+//   - 1700000000018_create_users.js
 //
-// Roles are seeded automatically: admin, manager, staff
+// This migration only ensures indexes exist for performance.
 // ============================================================
 
 exports.up = (pgm) => {
-  // -------- 1. Roles table --------
-  pgm.createTable('roles', {
-    id:   'id',
-    name: { type: 'varchar(50)', notNull: true, unique: true },
-    created_at: {
-      type: 'timestamp',
-      notNull: true,
-      default: pgm.func('current_timestamp'),
-    },
-  });
-
-  // Seed the 3 standard roles
-  pgm.sql(`
-    INSERT INTO roles (name) VALUES
-      ('admin'),
-      ('manager'),
-      ('staff');
-  `);
-
-  // -------- 2. Users table --------
-  pgm.createTable('users', {
-    id: 'id',
-    email:         { type: 'varchar(255)', notNull: true, unique: true },
-    password_hash: { type: 'varchar(255)', notNull: true },
-    full_name:     { type: 'varchar(255)' },
-    is_active:     { type: 'boolean', notNull: true, default: true },
-    role_id: {
-      type: 'integer',
-      notNull: true,
-      references: '"roles"',
-      onDelete: 'RESTRICT',
-    },
-    created_at: {
-      type: 'timestamp',
-      notNull: true,
-      default: pgm.func('current_timestamp'),
-    },
-    updated_at: {
-      type: 'timestamp',
-      notNull: true,
-      default: pgm.func('current_timestamp'),
-    },
-  });
-
-  // Index for fast email lookups during login
-  pgm.createIndex('users', 'email');
-  pgm.createIndex('users', 'role_id');
+  // Safe index creation (IF NOT EXISTS equivalent via try/catch handled by pg-migrate)
+  pgm.createIndex('users', 'email',   { ifNotExists: true });
+  pgm.createIndex('users', 'role_id', { ifNotExists: true });
 };
 
 exports.down = (pgm) => {
-  pgm.dropTable('users');
-  pgm.dropTable('roles');
+  pgm.dropIndex('users', 'email',   { ifExists: true });
+  pgm.dropIndex('users', 'role_id', { ifExists: true });
 };

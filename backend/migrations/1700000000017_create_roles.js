@@ -8,7 +8,7 @@ exports.up = (pgm) => {
     created_at: { type: 'timestamp', default: pgm.func('current_timestamp') },
   });
 
-  // Seed default roles
+  // Seed default roles — ON CONFLICT DO NOTHING prevents duplicate errors
   pgm.sql(`
     INSERT INTO roles (name) VALUES ('admin'), ('manager'), ('staff')
     ON CONFLICT (name) DO NOTHING;
